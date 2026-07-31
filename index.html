@@ -17,7 +17,6 @@
             <div class="icon-live">
                 <span class="infinity">∞</span>
             </div>
-            <div class="badge-3d">3D</div>
         </div>
     </div>
 
@@ -36,7 +35,7 @@
     <!-- 日期选择 -->
     <div class="date-section">
         <div class="calendar-icon">📅</div>
-        <div class="date-text" id="currentDate">10/02/2020</div>
+        <div class="date-text" id="currentDate">10/02/2026</div>
     </div>
 
     <!-- 时段开奖区域 -->
@@ -133,6 +132,76 @@
             </div>
             <div class="modal-body">
                 <div class="history-list" id="historyList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 我的（登录/注册）弹窗 -->
+    <div class="modal-overlay" id="meModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="meTitle">登录账号</h3>
+                <span class="modal-close" id="closeMe">✕</span>
+            </div>
+            <div class="modal-body">
+                <!-- 登录表单 -->
+                <div id="loginForm">
+                    <div class="modal-row">
+                        <label>用户名</label>
+                        <input type="text" id="loginUsername" placeholder="请输入用户名">
+                    </div>
+                    <div class="modal-row">
+                        <label>密码</label>
+                        <input type="password" id="loginPassword" placeholder="请输入密码">
+                    </div>
+                    <div class="modal-row">
+                        <button class="btn-confirm" id="btnLogin">登录</button>
+                    </div>
+                    <div class="modal-row" style="text-align:center; margin-top:10px;">
+                        <span style="color:#888; font-size:14px;">还没有账号？</span>
+                        <a href="#" id="switchToRegister" style="color:#ff6b35; font-size:14px;">去注册</a>
+                    </div>
+                </div>
+                <!-- 注册表单（默认隐藏） -->
+                <div id="registerForm" style="display:none;">
+                    <div class="modal-row">
+                        <label>用户名</label>
+                        <input type="text" id="regUsername" placeholder="请输入用户名">
+                    </div>
+                    <div class="modal-row">
+                        <label>密码</label>
+                        <input type="password" id="regPassword" placeholder="请输入密码">
+                    </div>
+                    <div class="modal-row">
+                        <label>确认密码</label>
+                        <input type="password" id="regPassword2" placeholder="再次输入密码">
+                    </div>
+                    <div class="modal-row">
+                        <button class="btn-confirm" id="btnRegister">注册</button>
+                    </div>
+                    <div class="modal-row" style="text-align:center; margin-top:10px;">
+                        <span style="color:#888; font-size:14px;">已有账号？</span>
+                        <a href="#" id="switchToLogin" style="color:#ff6b35; font-size:14px;">去登录</a>
+                    </div>
+                </div>
+                <!-- 已登录状态（默认隐藏） -->
+                <div id="userInfo" style="display:none;">
+                    <div class="modal-row">
+                        <label>用户名</label>
+                        <span id="displayUsername" style="font-size:16px; color:#333;"></span>
+                    </div>
+                    <div class="modal-row">
+                        <label>余额</label>
+                        <span id="displayBalance" style="font-size:16px; color:#ff6b35;"></span>
+                    </div>
+                    <div class="modal-row">
+                        <label>总投注</label>
+                        <span id="displayTotalBet" style="font-size:16px; color:#333;"></span>
+                    </div>
+                    <div class="modal-row">
+                        <button class="btn-cancel" id="btnLogout">退出登录</button>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
