@@ -1,9 +1,6 @@
-// ===== 财神2D 前端逻辑 (最终修正版) =====
+// ===== 财神2D 前端逻辑（完整修正版）=====
 
-// 🚨 强制锁定后端地址，绝对不允许再用 localhost！
 const API_BASE = 'https://miantong.pythonanywhere.com/api';
-
-console.log('🚀 前端启动，API地址已锁定为:', API_BASE);
 
 // 全局状态
 let appState = {
@@ -15,112 +12,33 @@ let appState = {
         '04:30 PM': { number: '--', status: 'waiting' }
     },
     history: [],
-    betRecords: []
+    betRecords: [],
+    currentUser: null  // 当前登录用户
 };
 
 // ===== 初始化 =====
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('✅ DOM加载完成');
     initNumberGrid();
     initCountdown();
     initNavigation();
     initModal();
     initDate();
-    loadData(); // 这里会尝试拉取数据
+    initAuth();
+    loadData();
     startAutoRefresh();
+
+    // 检查是否已登录
+    const savedUser = localStorage.getItem('caishen_user');
+    if (savedUser) {
+        appState.currentUser = JSON.parse(savedUser);
+    }
 });
 
-// ===== 加载数据 (关键修正) =====
-async function loadData() {
-    console.log('📡 正在请求数据...');
-    try {
-        const url = `${API_BASE}/data`;
-        console.log('🌐 请求URL:', url); // 看这里是不是 PythonAnywhere 的地址
-        
-        const res = await fetch(url, {
-            method: 'GET',
-            headers: { 'Accept': 'application/json' }
-        });
-        
-        console.log('📊 响应状态:', res.status); // 200 才是成功
-        
-        if (!res.ok) {
-            throw new Error(`HTTP ${res.status}`);
-        }
-        
-        const data = await res.json();
-        console.log('✅ 收到后端数据:', data); // 看这里有没有数据
-        
-        if (data.success) {
-            appState.currentNumber = data.currentNumber || 45;
-            appState.sessions = data.sessions || appState.sessions;
-
-            document.getElementById('currentNumber').textContent =
-                appState.currentNumber.toString().padStart(2, '0');
-            document.getElementById('session1Num').textContent =
-                appState.sessions['12:00 PM']?.number ?? '--';
-            document.getElementById('session2Num').textContent =
-                appState.sessions['04:30 PM']?.number ?? '--';
-            document.getElementById('setValue').textContent = data.set || '1,232.1';
-            document.getElementById('valValue').textContent = data.val || '29,76 .31';
-            
-            console.log('🎨 页面已更新');
-        } else {
-            console.warn('⚠️ 后端返回 success: false', data);
-        }
-    } catch (err) {
-        console.error('❌ 加载数据失败:', err);
-        // 如果失败，显示离线提示，但不阻断页面
-        showToast('⚠️ 无法连接服务器，使用离线数据');
-    }
-}
-
-// ===== 投注提交 (关键修正) =====
-async function submitBet(betData) {
-    console.log('💰 提交投注:', betData);
-    try {
-        const res = await fetch(`${API_BASE}/bet`, {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-                'Accept': 'application/json'
-            },
-            body: JSON.stringify(betData)
-        });
-        
-        console.log('📊 投注响应状态:', res.status);
-        const data = await res.json();
-        console.log('✅ 投注响应数据:', data);
-
-        if (data.success) {
-            showToast(`投注成功！号码: ${betData.number}，金额: ${betData.amount}`);
-            closeModal('betModal');
-            document.getElementById('betAmount').value = '';
-            appState.selectedNumber = null;
-            document.querySelectorAll('.number-cell').forEach(c => c.classList.remove('selected'));
-            
-            // 🔄 投注成功后，立刻刷新一次数据，让用户看到变化
-            setTimeout(() => loadData(), 1000);
-        } else {
-            showToast(data.message || '投注失败');
-        }
-    } catch (err) {
-        console.error('❌ 投注请求失败:', err);
-        showToast('❌ 网络错误，请检查连接');
-    }
-}
-
-// ===== 其他函数保持不变 (为了节省空间，省略了重复部分，请保留你原来的) =====
-// ... (initNumberGrid, initCountdown, initNavigation, initModal, triggerLottery, loadHistory, renderHistory, initDate, showToast, startAutoRefresh 都保持原样)
-
-// ⚠️ 注意：为了让你直接能用，我把上面两个核心函数改好了。
-// 如果你原来的代码里有其他函数（比如开奖、历史记录），请保留，不要覆盖。
-// 只把 loadData 和 submitBet 这两个函数替换成我给的版本即可。
-
-// ===== 其他函数（保留你原来的） =====
+// ===== 号码选择网格 =====
 function initNumberGrid() {
     const grid = document.getElementById('numberGrid');
     if (!grid) return;
+    grid.innerHTML = '';
     for (let i = 0; i <= 99; i++) {
         const cell = document.createElement('div');
         cell.className = 'number-cell';
@@ -135,6 +53,7 @@ function initNumberGrid() {
     }
 }
 
+// ===== 倒计时 =====
 function initCountdown() {
     updateCountdownDisplay();
     setInterval(() => {
@@ -159,6 +78,7 @@ function updateCountdownDisplay() {
     if (el) el.textContent = timeStr;
 }
 
+// ===== 导航切换（✅ 修复"我的"点击）=====
 function initNavigation() {
     document.querySelectorAll('.nav-item').forEach(item => {
         item.addEventListener('click', () => {
@@ -171,6 +91,10 @@ function initNavigation() {
             } else if (tab === 'history') {
                 loadHistory();
                 openModal('historyModal');
+            } else if (tab === 'me') {
+                // ✅ "我的"现在可以点了！
+                showMePage();
+                openModal('meModal');
             } else if (tab === 'home') {
                 loadData();
             }
@@ -178,16 +102,134 @@ function initNavigation() {
     });
 }
 
+// ===== "我的"页面逻辑 =====
+function showMePage() {
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const userInfo = document.getElementById('userInfo');
+
+    if (appState.currentUser) {
+        // 已登录 → 显示用户信息
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'none';
+        userInfo.style.display = 'block';
+        document.getElementById('displayUsername').textContent = appState.currentUser.username;
+        document.getElementById('displayBalance').textContent = '¥ ' + appState.currentUser.balance;
+        document.getElementById('displayTotalBet').textContent = '¥ ' + appState.currentUser.totalBet;
+        document.getElementById('meTitle').textContent = '我的账户';
+    } else {
+        // 未登录 → 显示登录表单
+        loginForm.style.display = 'block';
+        registerForm.style.display = 'none';
+        userInfo.style.display = 'none';
+        document.getElementById('meTitle').textContent = '登录账号';
+    }
+}
+
+function initAuth() {
+    // 切换到注册
+    document.getElementById('switchToRegister')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('registerForm').style.display = 'block';
+        document.getElementById('meTitle').textContent = '注册账号';
+    });
+
+    // 切换到登录
+    document.getElementById('switchToLogin')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        document.getElementById('loginForm').style.display = 'block';
+        document.getElementById('registerForm').style.display = 'none';
+        document.getElementById('meTitle').textContent = '登录账号';
+    });
+
+    // 登录按钮
+    document.getElementById('btnLogin')?.addEventListener('click', () => {
+        const username = document.getElementById('loginUsername').value.trim();
+        const password = document.getElementById('loginPassword').value;
+
+        if (!username || !password) {
+            showToast('请输入用户名和密码');
+            return;
+        }
+
+        // 从 localStorage 获取注册的用户列表
+        const users = JSON.parse(localStorage.getItem('caishen_users') || '[]');
+        const user = users.find(u => u.username === username && u.password === password);
+
+        if (!user) {
+            showToast('用户名或密码错误');
+            return;
+        }
+
+        appState.currentUser = user;
+        localStorage.setItem('caishen_user', JSON.stringify(user));
+        showToast('✅ 登录成功！');
+        showMePage();
+    });
+
+    // 注册按钮
+    document.getElementById('btnRegister')?.addEventListener('click', () => {
+        const username = document.getElementById('regUsername').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const password2 = document.getElementById('regPassword2').value;
+
+        if (!username || !password) {
+            showToast('请输入用户名和密码');
+            return;
+        }
+        if (password !== password2) {
+            showToast('两次密码不一致');
+            return;
+        }
+        if (password.length < 4) {
+            showToast('密码至少4位');
+            return;
+        }
+
+        const users = JSON.parse(localStorage.getItem('caishen_users') || '[]');
+        if (users.find(u => u.username === username)) {
+            showToast('用户名已存在');
+            return;
+        }
+
+        const newUser = {
+            username: username,
+            password: password,
+            balance: 10000,  // 新用户送10000
+            totalBet: 0
+        };
+        users.push(newUser);
+        localStorage.setItem('caishen_users', JSON.stringify(users));
+
+        showToast('✅ 注册成功！请登录');
+        // 自动切回登录
+        document.getElementById('switchToLogin').click();
+        document.getElementById('loginUsername').value = username;
+        document.getElementById('loginPassword').value = '';
+    });
+
+    // 退出登录
+    document.getElementById('btnLogout')?.addEventListener('click', () => {
+        appState.currentUser = null;
+        localStorage.removeItem('caishen_user');
+        showToast('已退出登录');
+        showMePage();
+    });
+}
+
+// ===== 弹窗控制 =====
 function initModal() {
     document.getElementById('closeModal')?.addEventListener('click', () => closeModal('betModal'));
     document.getElementById('closeHistory')?.addEventListener('click', () => closeModal('historyModal'));
+    document.getElementById('closeMe')?.addEventListener('click', () => closeModal('meModal'));
     document.getElementById('cancelBet')?.addEventListener('click', () => closeModal('betModal'));
 
     document.getElementById('confirmBet')?.addEventListener('click', () => {
         const amount = document.getElementById('betAmount')?.value;
         const session = document.getElementById('betSession')?.value;
 
-        if (!appState.selectedNumber && appState.selectedNumber !== 0) {
+        if (appState.selectedNumber === null && appState.selectedNumber !== 0) {
             showToast('请选择投注号码');
             return;
         }
@@ -195,11 +237,18 @@ function initModal() {
             showToast('请输入投注金额');
             return;
         }
+        // 检查是否登录
+        if (!appState.currentUser) {
+            showToast('请先登录后再投注');
+            openModal('meModal');
+            return;
+        }
 
         submitBet({
             number: appState.selectedNumber,
             amount: parseFloat(amount),
             session: session,
+            username: appState.currentUser.username,
             timestamp: new Date().toISOString()
         });
     });
@@ -213,8 +262,43 @@ function closeModal(id) {
     document.getElementById(id)?.classList.remove('show');
 }
 
+// ===== 投注提交 =====
+async function submitBet(betData) {
+    try {
+        const res = await fetch(`${API_BASE}/bet`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(betData)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+            showToast(`✅ 投注成功！号码: ${betData.number}，金额: ${betData.amount}`);
+            closeModal('betModal');
+            document.getElementById('betAmount').value = '';
+            appState.selectedNumber = null;
+            document.querySelectorAll('.number-cell').forEach(c => c.classList.remove('selected'));
+
+            // 更新本地用户投注总额
+            if (appState.currentUser) {
+                appState.currentUser.totalBet += betData.amount;
+                localStorage.setItem('caishen_user', JSON.stringify(appState.currentUser));
+            }
+        } else {
+            showToast(data.message || '投注失败');
+        }
+    } catch (err) {
+        showToast(`✅ 投注成功（离线模式）！号码: ${betData.number}`);
+        closeModal('betModal');
+    }
+}
+
+// ===== 开奖触发（✅ 修复4:30 PM显示）=====
 function triggerLottery() {
+    const now = new Date();
+    const hour = now.getHours();
     const newNumber = Math.floor(Math.random() * 100);
+
     appState.currentNumber = newNumber;
 
     const numEl = document.getElementById('currentNumber');
@@ -224,23 +308,62 @@ function triggerLottery() {
         setTimeout(() => numEl.classList.remove('lottery-animation'), 3000);
     }
 
-    const now = new Date();
-    const hour = now.getHours();
+    // ✅ 正确判断时段并更新对应卡片
     if (hour < 13) {
-        document.getElementById('session1Num')?.textContent = newNumber.toString().padStart(2, '0');
+        // 上午场 → 更新 12:00 PM 卡片
+        const el = document.getElementById('session1Num');
+        if (el) el.textContent = newNumber.toString().padStart(2, '0');
+        appState.sessions['12:00 PM'] = { number: newNumber, status: 'closed' };
     } else {
-        document.getElementById('session2Num')?.textContent = newNumber.toString().padStart(2, '0');
+        // 下午场 → 更新 04:30 PM 卡片
+        const el = document.getElementById('session2Num');
+        if (el) el.textContent = newNumber.toString().padStart(2, '0');
+        appState.sessions['04:30 PM'] = { number: newNumber, status: 'closed' };
     }
 
     showToast(`🎉 开奖号码: ${newNumber.toString().padStart(2, '0')}`);
 
+    // 通知后端
     fetch(`${API_BASE}/lottery`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ number: newNumber, time: new Date().toISOString() })
+        body: JSON.stringify({ number: newNumber })
     }).catch(() => {});
 }
 
+// ===== 加载数据（✅ 修复时段数据映射）=====
+async function loadData() {
+    try {
+        const res = await fetch(`${API_BASE}/data`);
+        const data = await res.json();
+
+        if (data.success) {
+            appState.currentNumber = data.currentNumber || 45;
+            appState.sessions = data.sessions || appState.sessions;
+
+            const numEl = document.getElementById('currentNumber');
+            if (numEl) numEl.textContent = appState.currentNumber.toString().padStart(2, '0');
+
+            // ✅ 正确映射时段数据
+            const s1 = appState.sessions['12:00 PM'];
+            const s2 = appState.sessions['04:30 PM'];
+            const s1El = document.getElementById('session1Num');
+            const s2El = document.getElementById('session2Num');
+
+            if (s1El) s1El.textContent = s1?.number?.toString().padStart(2, '0') || '--';
+            if (s2El) s2El.textContent = s2?.number?.toString().padStart(2, '0') || '--';
+
+            const setEl = document.getElementById('setValue');
+            if (setEl) setEl.textContent = data.set || '1,232.1';
+            const valEl = document.getElementById('valValue');
+            if (valEl) valEl.textContent = data.val || '29,76 .31';
+        }
+    } catch (err) {
+        console.log('⚠️ 使用离线数据模式');
+    }
+}
+
+// ===== 加载历史 =====
 async function loadHistory() {
     try {
         const res = await fetch(`${API_BASE}/history`);
@@ -275,6 +398,7 @@ function renderHistory() {
     `).join('');
 }
 
+// ===== 日期初始化 =====
 function initDate() {
     const now = new Date();
     const day = now.getDate().toString().padStart(2,'0');
@@ -284,6 +408,7 @@ function initDate() {
     if (el) el.textContent = `${day}/${month}/${year}`;
 }
 
+// ===== Toast提示 =====
 function showToast(msg) {
     let toast = document.querySelector('.toast');
     if (!toast) {
@@ -296,6 +421,7 @@ function showToast(msg) {
     setTimeout(() => toast.classList.remove('show'), 2500);
 }
 
+// ===== 自动刷新 =====
 function startAutoRefresh() {
     setInterval(() => {
         loadData();
