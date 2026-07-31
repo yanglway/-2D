@@ -10,13 +10,11 @@
     <!-- 顶部状态栏 -->
     <div class="header">
         <div class="header-left">
-            <div class="main-number" id="currentNumber">45</div>
-            <div class="countdown" id="countdown">01:39:51 PM</div>
+            <div class="main-number" id="currentNumber">--</div>
+            <div class="countdown" id="countdown">--:--:--</div>
         </div>
         <div class="header-right">
-            <div class="icon-live">
-                <span class="infinity">∞</span>
-            </div>
+            <div class="icon-live"><span class="infinity">∞</span></div>
         </div>
     </div>
 
@@ -24,52 +22,43 @@
     <div class="bet-info">
         <div class="bet-row">
             <span class="bet-label">SET:</span>
-            <span class="bet-value set-value" id="setValue">1,232.1</span>
+            <span class="bet-value set-value" id="setValue">--</span>
         </div>
         <div class="bet-row">
             <span class="bet-label">VAL:</span>
-            <span class="bet-value val-value" id="valValue">29,76 .31</span>
+            <span class="bet-value val-value" id="valValue">--</span>
         </div>
     </div>
 
-    <!-- 日期选择 -->
+    <!-- 日期 -->
     <div class="date-section">
         <div class="calendar-icon">📅</div>
-        <div class="date-text" id="currentDate">10/02/2026</div>
+        <div class="date-text" id="currentDate">--</div>
     </div>
 
     <!-- 时段开奖区域 -->
     <div class="session-grid">
         <div class="session-card" id="session1">
             <div class="session-time">12:00 PM</div>
-            <div class="session-number" id="session1Num">45</div>
+            <div class="session-number" id="session1Num">--</div>
+            <div class="session-status" id="session1Status"></div>
         </div>
         <div class="session-card" id="session2">
             <div class="session-time">04:30 PM</div>
             <div class="session-number" id="session2Num">--</div>
+            <div class="session-status" id="session2Status"></div>
         </div>
     </div>
 
-    <!-- 投注选项条 -->
-    <div class="bet-bar">
-        <div class="bet-bar-left">
-            <span class="bet-bar-time">09:30 AM</span>
-        </div>
-        <div class="bet-bar-right">
-            <div class="bet-bar-line1">Modern 69</div>
-            <div class="bet-bar-line2">Internet 35</div>
-        </div>
+    <!-- 最新开奖结果横幅 -->
+    <div class="result-banner" id="resultBanner" style="display:none;">
+        <span id="resultText"></span>
     </div>
 
-    <div class="bet-bar">
-        <div class="bet-bar-left">
-            <span class="bet-bar-time">02:00 PM</span>
-        </div>
-        <div class="bet-bar-right">
-            <div class="bet-bar-line1">Modern</div>
-            <div class="bet-bar-line2">Internet</div>
-            <div class="bet-bar-line3">--</div>
-        </div>
+    <!-- 我的余额条 -->
+    <div class="balance-bar" id="balanceBar" style="display:none;">
+        <span>余额: ¥<b id="balanceValue">0</b></span>
+        <span>总投注: ¥<b id="totalBetValue">0</b></span>
     </div>
 
     <!-- 底部导航 -->
@@ -115,6 +104,9 @@
                         <option value="04:30 PM">04:30 PM</option>
                     </select>
                 </div>
+                <div class="modal-row balance-hint">
+                    当前余额: ¥<b id="betBalanceHint">0</b>
+                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-cancel" id="cancelBet">取消</button>
@@ -144,7 +136,7 @@
                 <span class="modal-close" id="closeMe">✕</span>
             </div>
             <div class="modal-body">
-                <!-- 登录表单 -->
+                <!-- 登录 -->
                 <div id="loginForm">
                     <div class="modal-row">
                         <label>用户名</label>
@@ -157,12 +149,12 @@
                     <div class="modal-row">
                         <button class="btn-confirm" id="btnLogin">登录</button>
                     </div>
-                    <div class="modal-row" style="text-align:center; margin-top:10px;">
-                        <span style="color:#888; font-size:14px;">还没有账号？</span>
-                        <a href="#" id="switchToRegister" style="color:#ff6b35; font-size:14px;">去注册</a>
+                    <div class="modal-row switch-link">
+                        <span>还没有账号？</span>
+                        <a href="#" id="switchToRegister">去注册</a>
                     </div>
                 </div>
-                <!-- 注册表单（默认隐藏） -->
+                <!-- 注册 -->
                 <div id="registerForm" style="display:none;">
                     <div class="modal-row">
                         <label>用户名</label>
@@ -170,7 +162,7 @@
                     </div>
                     <div class="modal-row">
                         <label>密码</label>
-                        <input type="password" id="regPassword" placeholder="请输入密码">
+                        <input type="password" id="regPassword" placeholder="至少4位密码">
                     </div>
                     <div class="modal-row">
                         <label>确认密码</label>
@@ -179,24 +171,24 @@
                     <div class="modal-row">
                         <button class="btn-confirm" id="btnRegister">注册</button>
                     </div>
-                    <div class="modal-row" style="text-align:center; margin-top:10px;">
-                        <span style="color:#888; font-size:14px;">已有账号？</span>
-                        <a href="#" id="switchToLogin" style="color:#ff6b35; font-size:14px;">去登录</a>
+                    <div class="modal-row switch-link">
+                        <span>已有账号？</span>
+                        <a href="#" id="switchToLogin">去登录</a>
                     </div>
                 </div>
-                <!-- 已登录状态（默认隐藏） -->
+                <!-- 已登录 -->
                 <div id="userInfo" style="display:none;">
                     <div class="modal-row">
                         <label>用户名</label>
-                        <span id="displayUsername" style="font-size:16px; color:#333;"></span>
+                        <span id="displayUsername"></span>
                     </div>
                     <div class="modal-row">
                         <label>余额</label>
-                        <span id="displayBalance" style="font-size:16px; color:#ff6b35;"></span>
+                        <span class="highlight">¥ <b id="displayBalance">0</b></span>
                     </div>
                     <div class="modal-row">
                         <label>总投注</label>
-                        <span id="displayTotalBet" style="font-size:16px; color:#333;"></span>
+                        <span>¥ <b id="displayTotalBet">0</b></span>
                     </div>
                     <div class="modal-row">
                         <button class="btn-cancel" id="btnLogout">退出登录</button>
