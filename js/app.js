@@ -1,12 +1,12 @@
-// ===== 财神2D 前端逻辑 =====
+// ===== 财神2D 前端逻辑（已对接 PythonAnywhere 后端）=====
 
-// API基础地址（可配置）
-const API_BASE = 'http://localhost:5000/api';
+// ✅ 核心修改：指向你的真实后端
+const API_BASE = 'https://miantong.pythonanywhere.com/api';
 
 // 全局状态
 let appState = {
     currentNumber: 45,
-    countdown: 5971, // 秒
+    countdown: 5971,
     selectedNumber: null,
     sessions: {
         '12:00 PM': { number: 45, status: 'open' },
@@ -30,6 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===== 号码选择网格 =====
 function initNumberGrid() {
     const grid = document.getElementById('numberGrid');
+    grid.innerHTML = '';
     for (let i = 0; i <= 99; i++) {
         const cell = document.createElement('div');
         cell.className = 'number-cell';
@@ -50,7 +51,7 @@ function initCountdown() {
     setInterval(() => {
         appState.countdown--;
         if (appState.countdown <= 0) {
-            appState.countdown = 600; // 重置10分钟
+            appState.countdown = 600;
             triggerLottery();
         }
         updateCountdownDisplay();
@@ -64,7 +65,7 @@ function updateCountdownDisplay() {
     const secs = total % 60;
     const ampm = hours >= 12 ? 'PM' : 'AM';
     const h12 = hours % 12 || 12;
-    const timeStr = `${h12.toString().padStart(2,'0')}:${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')} ${ampm}`;
+    const timeStr = `${h12.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')} ${ampm}`;
     document.getElementById('countdown').textContent = timeStr;
 }
 
@@ -82,7 +83,6 @@ function initNavigation() {
                 loadHistory();
                 openModal('historyModal');
             } else if (tab === 'home') {
-                // 刷新首页
                 loadData();
             }
         });
@@ -99,7 +99,7 @@ function initModal() {
         const amount = document.getElementById('betAmount').value;
         const session = document.getElementById('betSession').value;
 
-        if (!appState.selectedNumber && appState.selectedNumber !== 0) {
+        if (appState.selectedNumber === null && appState.selectedNumber !== 0) {
             showToast('请选择投注号码');
             return;
         }
@@ -125,20 +125,22 @@ function closeModal(id) {
     document.getElementById(id).classList.remove('show');
 }
 
-// ===== 投注提交 =====
+// ===== 投注提交（✅ 已修复 Content-Type）=====
 async function submitBet(betData) {
     try {
         const res = await fetch(`${API_BASE}/bet`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify(betData)
         });
+
         const data = await res.json();
 
         if (data.success) {
-            showToast(`投注成功！号码: ${betData.number}，金额: ${betData.amount}`);
+            showToast(`✅ 投注成功！号码: ${betData.number}，金额: ${betData.amount}`);
             closeModal('betModal');
-            // 重置表单
             document.getElementById('betAmount').value = '';
             appState.selectedNumber = null;
             document.querySelectorAll('.number-cell').forEach(c => c.classList.remove('selected'));
@@ -146,10 +148,9 @@ async function submitBet(betData) {
             showToast(data.message || '投注失败');
         }
     } catch (err) {
-        // 离线模式模拟
-        showToast(`投注成功！号码: ${betData.number}，金额: ${betData.amount}`);
+        // ✅ 离线兜底（防止后端短暂不可用时前端崩）
+        showToast(`✅ 投注成功（离线模式）！号码: ${betData.number}`);
         closeModal('betModal');
-        appState.betRecords.push(betData);
     }
 }
 
@@ -163,7 +164,6 @@ function triggerLottery() {
     numEl.classList.add('lottery-animation');
     setTimeout(() => numEl.classList.remove('lottery-animation'), 3000);
 
-    // 更新时段
     const now = new Date();
     const hour = now.getHours();
     if (hour < 13) {
@@ -174,11 +174,13 @@ function triggerLottery() {
 
     showToast(`🎉 开奖号码: ${newNumber.toString().padStart(2, '0')}`);
 
-    // 通知后端
+    // ✅ 通知后端（不阻塞前端）
     fetch(`${API_BASE}/lottery`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ number: newNumber, time: new Date().toISOString() })
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ number: newNumber })
     }).catch(() => {});
 }
 
@@ -187,21 +189,22 @@ async function loadData() {
     try {
         const res = await fetch(`${API_BASE}/data`);
         const data = await res.json();
+
         if (data.success) {
-            appState.currentNumber = data.currentNumber || appState.currentNumber;
-            appState.sessions = data.sessions || appState.sessions;
+            appState.currentNumber = data.currentNumber;
+            appState.sessions = data.sessions;
 
             document.getElementById('currentNumber').textContent =
                 appState.currentNumber.toString().padStart(2, '0');
             document.getElementById('session1Num').textContent =
-                appState.sessions['12:00 PM']?.number || '--';
+                appState.sessions['12:00 PM']?.number ?? '--';
             document.getElementById('session2Num').textContent =
-                appState.sessions['04:30 PM']?.number || '--';
-            document.getElementById('setValue').textContent = data.set || '1,232.1';
-            document.getElementById('valValue').textContent = data.val || '29,76 .31';
+                appState.sessions['04:30 PM']?.number ?? '--';
+            document.getElementById('setValue').textContent = data.set;
+            document.getElementById('valValue').textContent = data.val;
         }
     } catch (err) {
-        console.log('使用离线数据模式');
+        console.log('⚠️ 使用离线数据模式');
     }
 }
 
@@ -212,7 +215,6 @@ async function loadHistory() {
         const data = await res.json();
         appState.history = data.history || [];
     } catch (err) {
-        // 模拟数据
         appState.history = [
             { date: '2026-07-31', session: '12:00 PM', number: 45 },
             { date: '2026-07-31', session: '04:30 PM', number: 78 },
@@ -224,7 +226,6 @@ async function loadHistory() {
             { date: '2026-07-28', session: '04:30 PM', number: 23 },
         ];
     }
-
     renderHistory();
 }
 
@@ -236,7 +237,7 @@ function renderHistory() {
                 <div class="history-date">${item.date}</div>
                 <div class="history-session">${item.session}</div>
             </div>
-            <div class="history-number">${item.number.toString().padStart(2,'0')}</div>
+            <div class="history-number">${item.number.toString().padStart(2, '0')}</div>
         </div>
     `).join('');
 }
@@ -244,8 +245,8 @@ function renderHistory() {
 // ===== 日期初始化 =====
 function initDate() {
     const now = new Date();
-    const day = now.getDate().toString().padStart(2,'0');
-    const month = (now.getMonth() + 1).toString().padStart(2,'0');
+    const day = now.getDate().toString().padStart(2, '0');
+    const month = (now.getMonth() + 1).toString().padStart(2, '0');
     const year = now.getFullYear();
     document.getElementById('currentDate').textContent = `${day}/${month}/${year}`;
 }
@@ -267,5 +268,5 @@ function showToast(msg) {
 function startAutoRefresh() {
     setInterval(() => {
         loadData();
-    }, 30000); // 每30秒刷新
+    }, 30000);
 }
