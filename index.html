@@ -1,203 +1,55 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>财神2D</title>
-    <link rel="stylesheet" href="css/style.css">
+<meta charset="UTF-8">
+<title>财神2D</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <!-- 顶部状态栏 -->
-    <div class="header">
-        <div class="header-left">
-            <div class="main-number" id="currentNumber">--</div>
-            <div class="countdown" id="countdown">--:--:--</div>
+
+<div class="header">
+    <div class="main-number" id="currentNumber">--</div>
+    <div class="countdown" id="countdown">--:--:--</div>
+</div>
+
+<div class="bet-info">
+    <div>SET: <span id="setVal">--</span></div>
+    <div>VAL: <span id="valVal">--</span></div>
+</div>
+
+<div class="balance-bar" id="balanceBar" style="display:none">
+    余额: ¥<span id="balance">0</span>
+</div>
+
+<div class="session-grid">
+    <div class="session-card">
+        <div>12:00 PM</div>
+        <div class="session-number" id="s1">--</div>
+    </div>
+    <div class="session-card">
+        <div>04:30 PM</div>
+        <div class="session-number" id="s2">--</div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="betModal">
+    <div class="modal-content">
+        <div class="modal-header">投注</div>
+        <div class="modal-body">
+            <input id="betNumber" placeholder="号码 0-99">
+            <input id="betAmount" type="number" placeholder="金额">
+            <select id="betSession">
+                <option>12:00 PM</option>
+                <option>04:30 PM</option>
+            </select>
         </div>
-        <div class="header-right">
-            <div class="icon-live"><span class="infinity">∞</span></div>
+        <div class="modal-footer">
+            <button id="doBet">确认投注</button>
         </div>
     </div>
+</div>
 
-    <!-- 投注信息栏 -->
-    <div class="bet-info">
-        <div class="bet-row">
-            <span class="bet-label">SET:</span>
-            <span class="bet-value set-value" id="setValue">--</span>
-        </div>
-        <div class="bet-row">
-            <span class="bet-label">VAL:</span>
-            <span class="bet-value val-value" id="valValue">--</span>
-        </div>
-    </div>
-
-    <!-- 日期 -->
-    <div class="date-section">
-        <div class="calendar-icon">📅</div>
-        <div class="date-text" id="currentDate">--</div>
-    </div>
-
-    <!-- 时段开奖区域 -->
-    <div class="session-grid">
-        <div class="session-card" id="session1">
-            <div class="session-time">12:00 PM</div>
-            <div class="session-number" id="session1Num">--</div>
-            <div class="session-status" id="session1Status"></div>
-        </div>
-        <div class="session-card" id="session2">
-            <div class="session-time">04:30 PM</div>
-            <div class="session-number" id="session2Num">--</div>
-            <div class="session-status" id="session2Status"></div>
-        </div>
-    </div>
-
-    <!-- 最新开奖结果横幅 -->
-    <div class="result-banner" id="resultBanner" style="display:none;">
-        <span id="resultText"></span>
-    </div>
-
-    <!-- 我的余额条 -->
-    <div class="balance-bar" id="balanceBar" style="display:none;">
-        <span>余额: ¥<b id="balanceValue">0</b></span>
-        <span>总投注: ¥<b id="totalBetValue">0</b></span>
-    </div>
-
-    <!-- 底部导航 -->
-    <div class="bottom-nav">
-        <div class="nav-item active" data-tab="home">
-            <span class="nav-icon">🏠</span>
-            <span class="nav-text">首页</span>
-        </div>
-        <div class="nav-item" data-tab="bet">
-            <span class="nav-icon">🎯</span>
-            <span class="nav-text">投注</span>
-        </div>
-        <div class="nav-item" data-tab="history">
-            <span class="nav-icon">📊</span>
-            <span class="nav-text">记录</span>
-        </div>
-        <div class="nav-item" data-tab="me">
-            <span class="nav-icon">👤</span>
-            <span class="nav-text">我的</span>
-        </div>
-    </div>
-
-    <!-- 投注弹窗 -->
-    <div class="modal-overlay" id="betModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>投注确认</h3>
-                <span class="modal-close" id="closeModal">✕</span>
-            </div>
-            <div class="modal-body">
-                <div class="modal-row">
-                    <label>选择号码</label>
-                    <div class="number-grid" id="numberGrid"></div>
-                </div>
-                <div class="modal-row">
-                    <label>投注金额</label>
-                    <input type="number" id="betAmount" placeholder="请输入金额" min="1">
-                </div>
-                <div class="modal-row">
-                    <label>选择时段</label>
-                    <select id="betSession">
-                        <option value="12:00 PM">12:00 PM</option>
-                        <option value="04:30 PM">04:30 PM</option>
-                    </select>
-                </div>
-                <div class="modal-row balance-hint">
-                    当前余额: ¥<b id="betBalanceHint">0</b>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-cancel" id="cancelBet">取消</button>
-                <button class="btn-confirm" id="confirmBet">确认投注</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- 开奖历史弹窗 -->
-    <div class="modal-overlay" id="historyModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>开奖记录</h3>
-                <span class="modal-close" id="closeHistory">✕</span>
-            </div>
-            <div class="modal-body">
-                <div class="history-list" id="historyList"></div>
-            </div>
-        </div>
-    </div>
-
-    <!-- 我的（登录/注册）弹窗 -->
-    <div class="modal-overlay" id="meModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 id="meTitle">登录账号</h3>
-                <span class="modal-close" id="closeMe">✕</span>
-            </div>
-            <div class="modal-body">
-                <!-- 登录 -->
-                <div id="loginForm">
-                    <div class="modal-row">
-                        <label>用户名</label>
-                        <input type="text" id="loginUsername" placeholder="请输入用户名">
-                    </div>
-                    <div class="modal-row">
-                        <label>密码</label>
-                        <input type="password" id="loginPassword" placeholder="请输入密码">
-                    </div>
-                    <div class="modal-row">
-                        <button class="btn-confirm" id="btnLogin">登录</button>
-                    </div>
-                    <div class="modal-row switch-link">
-                        <span>还没有账号？</span>
-                        <a href="#" id="switchToRegister">去注册</a>
-                    </div>
-                </div>
-                <!-- 注册 -->
-                <div id="registerForm" style="display:none;">
-                    <div class="modal-row">
-                        <label>用户名</label>
-                        <input type="text" id="regUsername" placeholder="请输入用户名">
-                    </div>
-                    <div class="modal-row">
-                        <label>密码</label>
-                        <input type="password" id="regPassword" placeholder="至少4位密码">
-                    </div>
-                    <div class="modal-row">
-                        <label>确认密码</label>
-                        <input type="password" id="regPassword2" placeholder="再次输入密码">
-                    </div>
-                    <div class="modal-row">
-                        <button class="btn-confirm" id="btnRegister">注册</button>
-                    </div>
-                    <div class="modal-row switch-link">
-                        <span>已有账号？</span>
-                        <a href="#" id="switchToLogin">去登录</a>
-                    </div>
-                </div>
-                <!-- 已登录 -->
-                <div id="userInfo" style="display:none;">
-                    <div class="modal-row">
-                        <label>用户名</label>
-                        <span id="displayUsername"></span>
-                    </div>
-                    <div class="modal-row">
-                        <label>余额</label>
-                        <span class="highlight">¥ <b id="displayBalance">0</b></span>
-                    </div>
-                    <div class="modal-row">
-                        <label>总投注</label>
-                        <span>¥ <b id="displayTotalBet">0</b></span>
-                    </div>
-                    <div class="modal-row">
-                        <button class="btn-cancel" id="btnLogout">退出登录</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script src="js/app.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
