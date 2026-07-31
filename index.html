@@ -1,55 +1,55 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
 <meta charset="UTF-8">
 <title>财神2D</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<link rel="stylesheet" href="css/style.css">
+<style>
+body{background:#111;color:#fff;font-family:sans-serif;text-align:center;padding:20px}
+input,button{padding:10px;margin:5px;border-radius:8px;border:none}
+button{background:#ff6b35;color:#fff}
+.box{background:#1e1e2e;padding:20px;border-radius:16px;margin:10px auto;max-width:360px}
+.num{font-size:48px;color:#ff6b35}
+</style>
 </head>
 <body>
-
-<div class="header">
-    <div class="main-number" id="currentNumber">--</div>
-    <div class="countdown" id="countdown">--:--:--</div>
+<div class="box">
+ <div class="num" id="n">--</div>
+ <button onclick="r()">注册</button>
+ <button onclick="l()">登录</button>
+ <div id="b"></div>
 </div>
-
-<div class="bet-info">
-    <div>SET: <span id="setVal">--</span></div>
-    <div>VAL: <span id="valVal">--</span></div>
+<div class="box">
+ <input id="num" placeholder="号码">
+ <input id="amt" type="number" placeholder="金额">
+ <select id="s"><option>12:00 PM</option><option>04:30 PM</option></select>
+ <button onclick="bet()">投注</button>
 </div>
-
-<div class="balance-bar" id="balanceBar" style="display:none">
-    余额: ¥<span id="balance">0</span>
-</div>
-
-<div class="session-grid">
-    <div class="session-card">
-        <div>12:00 PM</div>
-        <div class="session-number" id="s1">--</div>
-    </div>
-    <div class="session-card">
-        <div>04:30 PM</div>
-        <div class="session-number" id="s2">--</div>
-    </div>
-</div>
-
-<div class="modal-overlay" id="betModal">
-    <div class="modal-content">
-        <div class="modal-header">投注</div>
-        <div class="modal-body">
-            <input id="betNumber" placeholder="号码 0-99">
-            <input id="betAmount" type="number" placeholder="金额">
-            <select id="betSession">
-                <option>12:00 PM</option>
-                <option>04:30 PM</option>
-            </select>
-        </div>
-        <div class="modal-footer">
-            <button id="doBet">确认投注</button>
-        </div>
-    </div>
-</div>
-
-<script src="js/app.js"></script>
+<script>
+const API="https://miantong.pythonanywhere.com/api";
+let U=null;
+function r(){
+ const u=prompt("用户名"),p=prompt("密码");
+ fetch(API+"/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})})
+ .then(r=>r.json()).then(d=>alert(d.msg||"注册成功"))
+}
+function l(){
+ const u=prompt("用户名"),p=prompt("密码");
+ fetch(API+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})})
+ .then(r=>r.json()).then(d=>{if(d.success){U=d;document.getElementById("b").innerText="余额:￥"+d.balance}})
+}
+function bet(){
+ if(!U){alert("请登录");return;}
+ fetch(API+"/bet",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+   username:U.username,
+   number:+num.value,
+   amount:+amt.value,
+   session:s.value
+ })}).then(r=>r.json()).then(d=>alert(d.msg||"投注成功"))
+}
+setInterval(()=>{
+ fetch(API+"/data").then(r=>r.json()).then(d=>document.getElementById("n").innerText=d.currentNumber)
+},3000);
+</script>
 </body>
 </html>
