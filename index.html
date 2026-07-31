@@ -35,8 +35,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue"
 .session-card{background:linear-gradient(145deg,#222244,#1a1a33);border-radius:16px;padding:20px 12px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.05);transition:transform .3s}
 .session-card:hover{transform:translateY(-2px)}
 .session-time{font-size:14px;color:#aaa;margin-bottom:10px}
-.session-number{font-size:42px;font-weight:900;text-shadow:0 0 15px rgba(255,255,255,0.3)}
-.session-status{font-size:12px;margin-top:8px;color:#4cd964}
+.session-number{font-size:42px;font-weight:900;color:#fff;text-shadow:0 0 15px rgba(255,255,255,0.3)}
+.session-number.won{color:#ff6b35;text-shadow:0 0 20px rgba(255,107,53,0.6)}
+.session-status{font-size:12px;margin-top:8px;color:#888}
+.session-status.closed{color:#4cd964}
+.session-status.waiting{color:#f7c948}
 
 /* ===== 开奖横幅 ===== */
 .result-banner{display:none;background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;text-align:center;padding:12px 16px;font-size:16px;font-weight:bold;border-radius:12px;margin:8px 16px;box-shadow:0 4px 20px rgba(255,107,53,0.4);animation:bannerIn .5s ease}
@@ -73,22 +76,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue"
 @keyframes modalIn{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
 .modal-header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,0.08)}
 .modal-header h3{font-size:18px}
-.modal-close{font-size:22px;color:#888;cursor:pointer}
+.modal-close{font-size:22px;color:#888;cursor:pointer;transition:color .2s}
+.modal-close:hover{color:#fff}
 .modal-body{padding:20px}
 .modal-row{margin-bottom:18px}
 .modal-row label{display:block;font-size:14px;color:#aaa;margin-bottom:8px}
 .modal-row input,.modal-row select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;outline:none}
 .modal-row input:focus,.modal-row select:focus{border-color:#ff6b35}
 .modal-footer{display:flex;gap:12px;padding:0 20px 20px}
-.btn-cancel,.btn-confirm{flex:1;padding:14px;border-radius:14px;border:none;font-size:16px;font-weight:600;cursor:pointer}
+.btn-cancel,.btn-confirm{flex:1;padding:14px;border-radius:14px;border:none;font-size:16px;font-weight:600;cursor:pointer;transition:all .3s}
 .btn-cancel{background:rgba(255,255,255,0.08);color:#ccc}
+.btn-cancel:hover{background:rgba(255,255,255,0.12)}
 .btn-confirm{background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;box-shadow:0 4px 15px rgba(255,107,53,0.4)}
+.btn-confirm:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(255,107,53,0.5)}
 
 /* ===== 号码网格 ===== */
 .number-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;max-height:260px;overflow-y:auto;padding:8px;background:rgba(0,0,0,0.2);border-radius:12px}
 .number-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:1px solid transparent}
 .number-cell:hover{background:rgba(255,255,255,0.1)}
-.number-cell.selected{background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;transform:scale(1.1);box-shadow:0 0 15px rgba(255,107,53,0.5)}
+.number-cell.selected{background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;transform:scale(1.1);box-shadow:0 0 15px rgba(255,107,53,0.5);border-color:rgba(255,255,255,0.3)}
 
 /* ===== 登录/注册弹窗 ===== */
 .auth-tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.1)}
@@ -98,18 +104,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue"
 /* ===== 历史记录 ===== */
 .history-list{max-height:400px;overflow-y:auto}
 .history-item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
+.history-item:last-child{border-bottom:none}
 .history-date{font-size:14px;color:#ccc}
 .history-session{font-size:12px;color:#888;margin-top:2px}
 .history-number{font-size:24px;font-weight:900;color:#ff6b35;background:rgba(255,107,53,0.1);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.history-current .history-number{background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;box-shadow:0 0 15px rgba(255,107,53,0.5)}
+.empty-tip{text-align:center;color:#666;padding:40px 20px;font-size:14px}
 
 /* ===== Toast ===== */
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,0,0,0.85);color:#fff;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,0,0,0.85);color:#fff;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 .toast.ok{background:#2ed573}
 .toast.err{background:#ff4757}
 
 /* ===== 滚动条 ===== */
 ::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:4px}
 
 /* ===== 我的账户 ===== */
@@ -118,6 +128,33 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue"
 .account-row label{color:#888;font-size:14px}
 .account-row span{font-size:15px;font-weight:600}
 .account-row span.highlight{color:#ff6b35}
+
+/* ===== 我的页面 - 投注记录 ===== */
+.my-bet-list{max-height:300px;overflow-y:auto;margin-top:10px}
+.my-bet-item{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
+.my-bet-info{font-size:13px;color:#ccc}
+.my-bet-info .num{color:#ff6b35;font-weight:700;font-size:15px}
+.my-bet-amount{font-size:14px;font-weight:600}
+.my-bet-amount.won{color:#2ed573}
+.my-bet-amount.lost{color:#888}
+.my-bet-amount.pending{color:#f7c948}
+
+/* ===== 报表 ===== */
+.report-section{margin-top:15px}
+.report-section h4{color:#ff6b35;font-size:15px;margin-bottom:10px}
+.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.report-card{background:rgba(255,255,255,0.05);border-radius:10px;padding:12px;text-align:center}
+.report-card .label{font-size:12px;color:#888;margin-bottom:4px}
+.report-card .value{font-size:20px;font-weight:700}
+.report-card .value.green{color:#2ed573}
+.report-card .value.orange{color:#ff6b35}
+.report-card .value.yellow{color:#f7c948}
+
+/* ===== 我的页面按钮 ===== */
+.me-btn{width:100%;padding:12px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:#ccc;font-size:14px;cursor:pointer;text-align:left;margin-bottom:8px;transition:all .3s}
+.me-btn:hover{background:rgba(255,255,255,0.08);color:#fff}
+.me-btn.danger{color:#ff4757;border-color:rgba(255,71,87,0.3)}
+.me-btn.danger:hover{background:rgba(255,71,87,0.1)}
 
 /* ===== 响应式 ===== */
 @media(max-width:375px){
@@ -157,12 +194,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue"
   <div class="session-card" id="card1">
     <div class="session-time">12:00 PM</div>
     <div class="session-number" id="s1Num">--</div>
-    <div class="session-status" id="s1Status"></div>
+    <div class="session-status waiting" id="s1Status">⏳ 等待中</div>
   </div>
   <div class="session-card" id="card2">
     <div class="session-time">04:30 PM</div>
     <div class="session-number" id="s2Num">--</div>
-    <div class="session-status" id="s2Status"></div>
+    <div class="session-status waiting" id="s2Status">⏳ 等待中</div>
   </div>
 </div>
 
@@ -224,7 +261,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue"
   </div>
 </div>
 
-<!-- 历史弹窗 -->
+<!-- 历史记录弹窗 -->
 <div class="modal-overlay" id="historyModal">
   <div class="modal-content">
     <div class="modal-header"><h3>开奖记录</h3><span class="modal-close" onclick="closeModal('historyModal')">✕</span></div>
@@ -234,12 +271,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue"
   </div>
 </div>
 
-<!-- 我的弹窗 -->
+<!-- 我的弹窗（含投注记录 + 报表） -->
 <div class="modal-overlay" id="meModal">
   <div class="modal-content">
-    <div class="modal-header"><h3 id="meTitle">登录账号</h3><span class="modal-close" onclick="closeModal('meModal')">✕</span></div>
+    <div class="modal-header"><h3 id="meTitle">我的账户</h3><span class="modal-close" onclick="closeModal('meModal')">✕</span></div>
     <div class="modal-body">
-      <!-- 登录 -->
+
+      <!-- 登录表单 -->
       <div id="loginForm">
         <div class="auth-tabs">
           <div class="auth-tab active" id="tabLogin" onclick="switchAuth('login')">登录</div>
@@ -249,7 +287,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue"
         <div class="modal-row"><label>密码</label><input type="password" id="loginPassword" placeholder="请输入密码"></div>
         <div class="modal-row"><button class="btn-confirm" style="width:100%" id="btnLogin">登录</button></div>
       </div>
-      <!-- 注册 -->
+
+      <!-- 注册表单 -->
       <div id="registerForm" style="display:none">
         <div class="auth-tabs">
           <div class="auth-tab" id="tabLogin2" onclick="switchAuth('login')">登录</div>
@@ -260,217 +299,502 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue"
         <div class="modal-row"><label>确认密码</label><input type="password" id="regPassword2" placeholder="再次输入密码"></div>
         <div class="modal-row"><button class="btn-confirm" style="width:100%" id="btnRegister">注册</button></div>
       </div>
-      <!-- 已登录 -->
+
+      <!-- 已登录：账户信息 + 投注记录 + 报表 -->
       <div id="userInfo" style="display:none">
         <div class="account-info">
           <div class="account-row"><label>用户名</label><span id="displayUsername"></span></div>
           <div class="account-row"><label>余额</label><span class="highlight">¥ <b id="displayBalance">0</b></span></div>
           <div class="account-row"><label>总投注</label><span>¥ <b id="displayTotalBet">0</b></span></div>
         </div>
-        <div class="modal-row"><button class="btn-cancel" style="width:100%" id="btnLogout">退出登录</button></div>
+
+        <!-- 投注记录 -->
+        <div class="report-section">
+          <h4>📋 我的投注记录</h4>
+          <div class="my-bet-list" id="myBetList">
+            <div class="empty-tip">暂无投注记录</div>
+          </div>
+        </div>
+
+        <!-- 报表 -->
+        <div class="report-section">
+          <h4>📈 投注报表</h4>
+          <div class="report-grid">
+            <div class="report-card">
+              <div class="label">总投注次数</div>
+              <div class="value orange" id="rptCount">0</div>
+            </div>
+            <div class="report-card">
+              <div class="label">总投注金额</div>
+              <div class="value orange" id="rptAmount">¥0</div>
+            </div>
+            <div class="report-card">
+              <div class="label">中奖次数</div>
+              <div class="value green" id="rptWon">0</div>
+            </div>
+            <div class="report-card">
+              <div class="label">总盈亏</div>
+              <div class="value yellow" id="rptProfit">¥0</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-row" style="margin-top:15px">
+          <button class="me-btn danger" id="btnLogout">🚪 退出登录</button>
+        </div>
       </div>
+
     </div>
   </div>
 </div>
 
 <script>
-// ===== 全局 =====
+// ===== 全局配置 =====
 const API = "https://miantong.pythonanywhere.com/api";
-let user = JSON.parse(localStorage.getItem("user") || "null");
+let user = null;
+try { user = JSON.parse(localStorage.getItem("user") || "null"); } catch(e) {}
 let currentNumber = null;
 let selectedNumber = null;
+let lastNumber = null;
 
-// ===== Toast =====
+// ===== Toast 提示 =====
 function toast(msg, type){
   let t = document.querySelector(".toast");
-  if(!t){t=document.createElement("div");t.className="toast";document.body.appendChild(t)}
-  t.textContent=msg;t.className="toast show "+(type||"");
-  setTimeout(()=>t.classList.remove("show"),2500);
+  if(!t){ t = document.createElement("div"); t.className = "toast"; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.className = "toast show " + (type || "");
+  setTimeout(()=>{ t.classList.remove("show"); }, 2500);
 }
 
-// ===== 工具 =====
-function openModal(id){document.getElementById(id).classList.add("show")}
-function closeModal(id){document.getElementById(id).classList.remove("show")}
+// ===== 弹窗 =====
+function openModal(id){ document.getElementById(id).classList.add("show"); }
+function closeModal(id){ document.getElementById(id).classList.remove("show"); }
 
 // ===== 初始化 =====
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", function(){
   initNumberGrid();
   initCountdown();
   initNav();
   initDate();
   initAuth();
   loadData();
-  setInterval(loadData,15000);
-  if(user){refreshBalanceBar();showAd();}
+  setInterval(loadData, 10000);
+  if(user && user.username){ refreshBalanceBar(); loadMyBets(); }
 });
 
 // ===== 号码网格 =====
 function initNumberGrid(){
-  const g=document.getElementById("numberGrid");
-  for(let i=0;i<=99;i++){
-    const c=document.createElement("div");
-    c.className="number-cell";c.textContent=i.toString().padStart(2,"0");
-    c.onclick=()=>{document.querySelectorAll(".number-cell").forEach(x=>x.classList.remove("selected"));c.classList.add("selected");selectedNumber=i};
-    g.appendChild(c);
+  var g = document.getElementById("numberGrid");
+  for(var i=0; i<=99; i++){
+    (function(num){
+      var c = document.createElement("div");
+      c.className = "number-cell";
+      c.textContent = (num < 10 ? "0" + num : "" + num);
+      c.onclick = function(){
+        var all = document.querySelectorAll(".number-cell");
+        for(var i=0; i<all.length; i++) all[i].classList.remove("selected");
+        c.classList.add("selected");
+        selectedNumber = num;
+      };
+      g.appendChild(c);
+    })(i);
   }
 }
 
 // ===== 倒计时 =====
-let countdown=600;
+var countdown = 600;
 function initCountdown(){
   updateCountdown();
-  setInterval(()=>{countdown--;if(countdown<=0)countdown=600;updateCountdown()},1000);
+  setInterval(function(){ countdown--; if(countdown <= 0) countdown = 600; updateCountdown(); }, 1000);
 }
 function updateCountdown(){
-  const t=Math.max(0,countdown),h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;
-  const apm=h>=12?"PM":"AM",h12=h%12||12;
-  document.getElementById("countdown").textContent=`${h12.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")} ${apm}`;
+  var t = Math.max(0, countdown);
+  var h = Math.floor(t / 3600);
+  var m = Math.floor((t % 3600) / 60);
+  var s = t % 60;
+  var apm = h >= 12 ? "PM" : "AM";
+  var h12 = h % 12; if(h12 === 0) h12 = 12;
+  var str = (h12<10?"0"+h12:h12) + ":" + (m<10?"0"+m:m) + ":" + (s<10?"0"+s:s) + " " + apm;
+  document.getElementById("countdown").textContent = str;
 }
 
 // ===== 导航 =====
 function initNav(){
-  document.querySelectorAll(".nav-item").forEach(item=>{
-    item.onclick=()=>{
-      document.querySelectorAll(".nav-item").forEach(x=>x.classList.remove("active"));
-      item.classList.add("active");
-      const t=item.dataset.tab;
-      if(t==="bet"){if(!user){toast("请先登录");openModal("meModal");return}refreshBetHint();openModal("betModal")}
-      else if(t==="history"){loadHistory();openModal("historyModal")}
-      else if(t==="me"){showMePage();openModal("meModal")}
+  var items = document.querySelectorAll(".nav-item");
+  for(var i=0; i<items.length; i++){
+    items[i].onclick = function(){
+      var all = document.querySelectorAll(".nav-item");
+      for(var j=0; j<all.length; j++) all[j].classList.remove("active");
+      this.classList.add("active");
+      var t = this.getAttribute("data-tab");
+      if(t === "bet"){
+        if(!user || !user.username){ toast("请先登录"); openModal("meModal"); return; }
+        refreshBetHint(); openModal("betModal");
+      } else if(t === "history"){
+        loadHistory(); openModal("historyModal");
+      } else if(t === "me"){
+        showMePage(); openModal("meModal");
+      }
     };
-  });
+  }
 }
 
 // ===== 日期 =====
 function initDate(){
-  const n=new Date(),d=n.getDate().toString().padStart(2,"0"),m=(n.getMonth()+1).toString().padStart(2,"0");
-  document.getElementById("currentDate").textContent=`${d}/${m}/${n.getFullYear()}`;
+  var n = new Date();
+  var d = n.getDate(); if(d<10) d="0"+d;
+  var m = n.getMonth()+1; if(m<10) m="0"+m;
+  document.getElementById("currentDate").textContent = d + "/" + m + "/" + n.getFullYear();
 }
 
-// ===== 数据加载 =====
+// ===== 数据加载（修复：开奖号码显示） =====
 async function loadData(){
   try{
-    const r=await fetch(API+"/data").then(x=>x.json());
-    if(!r.success)return;
-    currentNumber=r.currentNumber;
-    document.getElementById("currentNumber").textContent=(r.currentNumber??"--").toString().padStart(2,"0");
-    document.getElementById("setValue").textContent=r.set||"--";
-    document.getElementById("valValue").textContent=r.val||"--";
-    const s1=r.sessions?.["12:00 PM"],s2=r.sessions?.["04:30 PM"];
-    document.getElementById("s1Num").textContent=(s1?.number??"--").toString().padStart(2,"0");
-    document.getElementById("s2Num").textContent=(s2?.number??"--").toString().padStart(2,"0");
-    document.getElementById("s1Status").textContent=s1?.status==="closed"?"✅ 已开奖":"⏳ 等待中";
-    document.getElementById("s2Status").textContent=s2?.status==="closed"?"✅ 已开奖":"⏳ 等待中";
-    if(r.ads?.marquee?.enabled){document.getElementById("marquee").classList.add("show");document.getElementById("marqueeText").textContent=r.ads.marquee.content||""}
-  }catch(e){console.warn("loadData error",e)}
+    var resp = await fetch(API + "/data");
+    var r = await resp.json();
+    if(!r.success) return;
+
+    // 当前开奖号码（顶部大号显示）
+    var curNum = r.currentNumber;
+    if(curNum !== null && curNum !== undefined && curNum !== "--"){
+      document.getElementById("currentNumber").textContent = (curNum < 10 ? "0"+curNum : ""+curNum);
+      currentNumber = curNum;
+    }
+
+    // SET / VAL
+    document.getElementById("setValue").textContent = r.set || "--";
+    document.getElementById("valValue").textContent = r.val || "--";
+
+    // 两个场次号码
+    var sess = r.sessions || {};
+    var s1 = sess["12:00 PM"];
+    var s2 = sess["04:30 PM"];
+
+    if(s1){
+      var s1el = document.getElementById("s1Num");
+      var s1st = document.getElementById("s1Status");
+      if(s1.number !== null && s1.number !== undefined && s1.number !== "--"){
+        s1el.textContent = (s1.number < 10 ? "0"+s1.number : ""+s1.number);
+        s1el.classList.add("won");
+        s1st.textContent = "✅ 已开奖";
+        s1st.className = "session-status closed";
+      } else {
+        s1el.textContent = "--";
+        s1el.classList.remove("won");
+        s1st.textContent = "⏳ 等待中";
+        s1st.className = "session-status waiting";
+      }
+    }
+
+    if(s2){
+      var s2el = document.getElementById("s2Num");
+      var s2st = document.getElementById("s2Status");
+      if(s2.number !== null && s2.number !== undefined && s2.number !== "--"){
+        s2el.textContent = (s2.number < 10 ? "0"+s2.number : ""+s2.number);
+        s2el.classList.add("won");
+        s2st.textContent = "✅ 已开奖";
+        s2st.className = "session-status closed";
+      } else {
+        s2el.textContent = "--";
+        s2el.classList.remove("won");
+        s2st.textContent = "⏳ 等待中";
+        s2st.className = "session-status waiting";
+      }
+    }
+
+    // 跑马灯
+    if(r.ads && r.ads.marquee && r.ads.marquee.enabled){
+      document.getElementById("marquee").classList.add("show");
+      document.getElementById("marqueeText").textContent = (r.ads.marquee.content || "");
+    }
+
+    // 检测开奖变化 → 弹横幅
+    if(curNum !== null && curNum !== undefined && curNum !== "--" && curNum !== lastNumber){
+      lastNumber = curNum;
+      var now = new Date();
+      var sess_name = now.getHours() < 13 ? "12:00 PM" : "04:30 PM";
+      showResult(curNum, sess_name);
+    }
+
+  }catch(e){ console.warn("loadData error", e); }
 }
 
 // ===== 广告 =====
 function showAd(){
-  fetch(API+"/data").then(x=>x.json()).then(d=>{
-    if(d.ads?.popup?.enabled){document.getElementById("adTitle").textContent=d.ads.popup.title||"";document.getElementById("adContent").textContent=d.ads.popup.content||"";document.getElementById("adOverlay").classList.add("show")}
-  }).catch(()=>{});
+  fetch(API + "/data").then(function(resp){ return resp.json(); }).then(function(d){
+    if(d.ads && d.ads.popup && d.ads.popup.enabled){
+      document.getElementById("adTitle").textContent = d.ads.popup.title || "";
+      document.getElementById("adContent").textContent = d.ads.popup.content || "";
+      document.getElementById("adOverlay").classList.add("show");
+    }
+  }).catch(function(){});
 }
-function closeAd(){document.getElementById("adOverlay").classList.remove("show")}
+function closeAd(){ document.getElementById("adOverlay").classList.remove("show"); }
 
 // ===== 开奖横幅 =====
-function showResult(num,session){
-  const b=document.getElementById("resultBanner"),t=document.getElementById("resultText");
-  t.textContent=`🎉 ${session} 开奖号码: ${num.toString().padStart(2,"0")}`;
-  b.style.display="block";b.classList.remove("bannerIn");void b.offsetWidth;b.classList.add("bannerIn");
-  setTimeout(()=>b.style.display="none",5000);
-  const isPM=session==="04:30 PM",el=document.getElementById(isPM?"s2Num":"s1Num");
-  if(el){el.textContent=num.toString().padStart(2,"0");el.classList.remove("pop");void el.offsetWidth;el.classList.add("pop")}
-  toast(`🎉 开奖: ${num.toString().padStart(2,"0")}`,"ok");
+function showResult(num, session){
+  var b = document.getElementById("resultBanner");
+  var t = document.getElementById("resultText");
+  t.textContent = "🎉 " + session + " 开奖号码: " + (num < 10 ? "0"+num : ""+num);
+  b.style.display = "block";
+  b.classList.remove("bannerIn");
+  void b.offsetWidth;
+  b.classList.add("bannerIn");
+  setTimeout(function(){ b.style.display = "none"; }, 5000);
+
+  toast("🎉 开奖: " + (num < 10 ? "0"+num : ""+num), "ok");
 }
 
 // ===== 投注 =====
-document.getElementById("confirmBet").onclick=async()=>{
-  const amt=parseFloat(document.getElementById("betAmount").value),s=document.getElementById("betSession").value;
-  if(selectedNumber===null&&selectedNumber!==0){toast("请选择号码");return}
-  if(!amt||amt<=0){toast("请输入金额");return}
-  if(!user){toast("请先登录");openModal("meModal");return}
-  if(amt>user.balance){toast("余额不足");return}
+document.getElementById("confirmBet").onclick = async function(){
+  var amt = parseFloat(document.getElementById("betAmount").value);
+  var s = document.getElementById("betSession").value;
+
+  if(selectedNumber === null && selectedNumber !== 0){ toast("请选择号码"); return; }
+  if(!amt || amt <= 0){ toast("请输入金额"); return; }
+  if(!user || !user.username){ toast("请先登录"); openModal("meModal"); return; }
+  if(amt > user.balance){ toast("余额不足"); return; }
+
   try{
-    const r=await fetch(API+"/bet",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:user.username,number:selectedNumber,amount:amt,session:s,timestamp:new Date().toISOString()})}).then(x=>x.json());
-    if(r.success){toast(`✅ 投注成功！号码:${selectedNumber} 金额:${amt}`,"ok");user.balance=r.balance;user.totalBet=(user.totalBet||0)+amt;localStorage.setItem("user",JSON.stringify(user));refreshBalanceBar();refreshBetHint();closeModal("betModal");document.getElementById("betAmount").value="";selectedNumber=null;document.querySelectorAll(".number-cell").forEach(c=>c.classList.remove("selected"))}
-    else toast(r.message||"投注失败","err");
-  }catch(e){toast("网络错误","err")}
+    var resp = await fetch(API + "/bet", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({username:user.username, number:selectedNumber, amount:amt, session:s, timestamp:new Date().toISOString()})
+    });
+    var r = await resp.json();
+
+    if(r.success){
+      toast("✅ 投注成功！号码:" + selectedNumber + " 金额:" + amt, "ok");
+      user.balance = r.balance;
+      user.totalBet = (user.totalBet || 0) + amt;
+      localStorage.setItem("user", JSON.stringify(user));
+      refreshBalanceBar();
+      refreshBetHint();
+      closeModal("betModal");
+      document.getElementById("betAmount").value = "";
+      selectedNumber = null;
+      var all = document.querySelectorAll(".number-cell");
+      for(var i=0; i<all.length; i++) all[i].classList.remove("selected");
+      // 刷新投注记录
+      loadMyBets();
+    } else {
+      toast(r.message || "投注失败", "err");
+    }
+  }catch(e){ toast("网络错误", "err"); }
 };
 
-// ===== 历史 =====
+// ===== 历史记录 =====
 async function loadHistory(){
   try{
-    const r=await fetch(API+"/history").then(x=>x.json());
-    const list=document.getElementById("historyList");
-    if(!r.history?.length){list.innerHTML='<div style="text-align:center;color:#666;padding:20px">暂无记录</div>';return}
-    list.innerHTML=r.history.map(h=>`<div class="history-item"><div><div class="history-date">${h.date}</div><div class="history-session">${h.session}</div></div><div class="history-number">${h.number.toString().padStart(2,"0")}</div></div>`).join("");
-  }catch(e){document.getElementById("historyList").innerHTML='<div style="color:#ff4757">加载失败</div>'}
+    var resp = await fetch(API + "/history");
+    var r = await resp.json();
+    var list = document.getElementById("historyList");
+    if(!r.history || r.history.length === 0){
+      list.innerHTML = '<div class="empty-tip">暂无开奖记录</div>';
+      return;
+    }
+    var html = "";
+    for(var i=0; i<r.history.length; i++){
+      var h = r.history[i];
+      var num = h.number;
+      var numStr = (num < 10 ? "0"+num : ""+num);
+      var cls = (i === 0) ? "history-item history-current" : "history-item";
+      html += '<div class="' + cls + '"><div><div class="history-date">' + h.date + '</div><div class="history-session">' + h.session + '</div></div><div class="history-number">' + numStr + '</div></div>';
+    }
+    list.innerHTML = html;
+  }catch(e){
+    document.getElementById("historyList").innerHTML = '<div style="color:#ff4757;text-align:center;padding:20px">加载失败</div>';
+  }
 }
 
-// ===== 认证 =====
+// ===== 我的投注记录 + 报表 =====
+async function loadMyBets(){
+  if(!user || !user.username) return;
+  try{
+    // 获取用户的所有投注记录（通过用户接口）
+    var resp = await fetch(API + "/user/" + encodeURIComponent(user.username));
+    var r = await resp.json();
+    var container = document.getElementById("myBetList");
+
+    if(!r.success || !r.bets || r.bets.length === 0){
+      container.innerHTML = '<div class="empty-tip">暂无投注记录</div>';
+      // 重置报表
+      document.getElementById("rptCount").textContent = "0";
+      document.getElementById("rptAmount").textContent = "¥0";
+      document.getElementById("rptWon").textContent = "0";
+      document.getElementById("rptProfit").textContent = "¥0";
+      return;
+    }
+
+    var bets = r.bets;
+    var html = "";
+    var totalAmount = 0;
+    var wonCount = 0;
+    var totalPayout = 0;
+
+    // 倒序显示（最新的在前）
+    for(var i = bets.length - 1; i >= 0; i--){
+      var b = bets[i];
+      var numStr = (b.number < 10 ? "0"+b.number : ""+b.number);
+      var statusCls = "pending";
+      var statusText = "⏳ 待开奖";
+      if(b.status === "won"){ statusCls = "won"; statusText = "✅ 中奖 +" + (b.payout||0); wonCount++; totalPayout += (b.payout||0); }
+      else if(b.status === "lost"){ statusCls = "lost"; statusText = "❌ 未中"; }
+      else if(b.status === "pending"){ statusCls = "pending"; statusText = "⏳ 待开奖"; }
+      totalAmount += b.amount;
+
+      html += '<div class="my-bet-item"><div class="my-bet-info"><span class="num">' + numStr + '</span> | ' + b.session + '<br><small style="color:#666">' + (b.time||"") + '</small></div><div style="text-align:right"><div class="my-bet-amount ' + statusCls + '">¥' + b.amount + '</div><div style="font-size:11px;color:#888">' + statusText + '</div></div></div>';
+    }
+    container.innerHTML = html;
+
+    // 更新报表
+    var profit = totalPayout - totalAmount;
+    document.getElementById("rptCount").textContent = bets.length;
+    document.getElementById("rptAmount").textContent = "¥" + totalAmount;
+    document.getElementById("rptWon").textContent = wonCount;
+    document.getElementById("rptProfit").textContent = (profit >= 0 ? "¥" : "-¥") + Math.abs(Math.round(profit*100)/100);
+    if(profit < 0) document.getElementById("rptProfit").style.color = "#ff4757";
+    else document.getElementById("rptProfit").style.color = "#2ed573";
+
+  }catch(e){
+    console.warn("loadMyBets error", e);
+  }
+}
+
+// ===== 认证（登录/注册） =====
 function initAuth(){
-  document.getElementById("btnLogin").onclick=async()=>{
-    const u=document.getElementById("loginUsername").value.trim(),p=document.getElementById("loginPassword").value;
-    if(!u||!p){toast("请输入账号和密码");return}
+  // 登录
+  document.getElementById("btnLogin").onclick = async function(){
+    var u = document.getElementById("loginUsername").value.trim();
+    var p = document.getElementById("loginPassword").value;
+    if(!u || !p){ toast("请输入账号和密码"); return; }
     try{
-      const r=await fetch(API+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})}).then(x=>x.json());
-      if(r.success){user={username:r.username,balance:r.balance,totalBet:r.totalBet};localStorage.setItem("user",JSON.stringify(user));toast("✅ 登录成功","ok");refreshBalanceBar();showMePage();showAd()}
-      else toast(r.message||"登录失败","err");
-    }catch(e){toast("网络错误","err")}
+      var resp = await fetch(API + "/login", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({username:u, password:p})
+      });
+      var r = await resp.json();
+      if(r.success){
+        user = {username:r.username, balance:r.balance, totalBet:r.totalBet};
+        localStorage.setItem("user", JSON.stringify(user));
+        toast("✅ 登录成功", "ok");
+        refreshBalanceBar();
+        showMePage();
+        showAd();
+        loadMyBets();
+      } else {
+        toast(r.message || "登录失败", "err");
+      }
+    }catch(e){ toast("网络错误", "err"); }
   };
-  document.getElementById("btnRegister").onclick=async()=>{
-    const u=document.getElementById("regUsername").value.trim(),p1=document.getElementById("regPassword").value,p2=document.getElementById("regPassword2").value;
-    if(!u||!p1){toast("请输入用户名和密码");return}
-    if(p1!==p2){toast("两次密码不一致");return}
+
+  // 注册
+  document.getElementById("btnRegister").onclick = async function(){
+    var u = document.getElementById("regUsername").value.trim();
+    var p1 = document.getElementById("regPassword").value;
+    var p2 = document.getElementById("regPassword2").value;
+    if(!u || !p1){ toast("请输入用户名和密码"); return; }
+    if(p1 !== p2){ toast("两次密码不一致"); return; }
     try{
-      const r=await fetch(API+"/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p1})}).then(x=>x.json());
-      if(r.success){toast(`✅ 注册成功！赠送 ¥${r.balance}`,"ok");user={username:u,balance:r.balance,totalBet:0};localStorage.setItem("user",JSON.stringify(user));refreshBalanceBar();showMePage()}
-      else toast(r.message||"注册失败","err");
-    }catch(e){toast("网络错误","err")}
+      var resp = await fetch(API + "/register", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({username:u, password:p1})
+      });
+      var r = await resp.json();
+      if(r.success){
+        toast("✅ 注册成功！赠送 ¥" + r.balance, "ok");
+        user = {username:u, balance:r.balance, totalBet:0};
+        localStorage.setItem("user", JSON.stringify(user));
+        refreshBalanceBar();
+        showMePage();
+      } else {
+        toast(r.message || "注册失败", "err");
+      }
+    }catch(e){ toast("网络错误", "err"); }
   };
-  document.getElementById("btnLogout").onclick=()=>{user=null;localStorage.removeItem("user");document.getElementById("balanceBar").style.display="none";toast("已退出");showMePage()};
+
+  // 退出
+  document.getElementById("btnLogout").onclick = function(){
+    user = null;
+    localStorage.removeItem("user");
+    document.getElementById("balanceBar").style.display = "none";
+    toast("已退出登录");
+    showMePage();
+  };
 }
 
+// ===== 切换登录/注册标签 =====
 function switchAuth(tab){
-  document.getElementById("loginForm").style.display=tab==="login"?"block":"none";
-  document.getElementById("registerForm").style.display=tab==="register"?"block":"none";
-  document.getElementById("tabLogin").classList.toggle("active",tab==="login");
-  document.getElementById("tabReg").classList.toggle("active",tab==="register");
-  document.getElementById("tabLogin2").classList.toggle("active",tab==="login");
-  document.getElementById("tabReg2").classList.toggle("active",tab==="register");
+  document.getElementById("loginForm").style.display = (tab === "login") ? "block" : "none";
+  document.getElementById("registerForm").style.display = (tab === "register") ? "block" : "none";
+  document.getElementById("tabLogin").classList.toggle("active", tab === "login");
+  document.getElementById("tabReg").classList.toggle("active", tab === "register");
+  document.getElementById("tabLogin2").classList.toggle("active", tab === "login");
+  document.getElementById("tabReg2").classList.toggle("active", tab === "register");
 }
 
+// ===== 显示我的页面 =====
 function showMePage(){
-  const lf=document.getElementById("loginForm"),rf=document.getElementById("registerForm"),ui=document.getElementById("userInfo");
-  if(user){lf.style.display="none";rf.style.display="none";ui.style.display="block";document.getElementById("displayUsername").textContent=user.username;document.getElementById("displayBalance").textContent=user.balance;document.getElementById("displayTotalBet").textContent=user.totalBet||0;document.getElementById("meTitle").textContent="我的账户"}
-  else{lf.style.display="block";rf.style.display="none";ui.style.display="none";document.getElementById("meTitle").textContent="登录账号"}
+  var lf = document.getElementById("loginForm");
+  var rf = document.getElementById("registerForm");
+  var ui = document.getElementById("userInfo");
+
+  if(user && user.username){
+    lf.style.display = "none";
+    rf.style.display = "none";
+    ui.style.display = "block";
+    document.getElementById("displayUsername").textContent = user.username;
+    document.getElementById("displayBalance").textContent = user.balance;
+    document.getElementById("displayTotalBet").textContent = user.totalBet || 0;
+    document.getElementById("meTitle").textContent = "我的账户";
+    loadMyBets(); // 每次打开刷新投注记录
+  } else {
+    lf.style.display = "block";
+    rf.style.display = "none";
+    ui.style.display = "none";
+    document.getElementById("meTitle").textContent = "登录账号";
+  }
 }
 
+// ===== 余额条 =====
 function refreshBalanceBar(){
-  if(!user)return;
-  document.getElementById("balanceBar").style.display="flex";
-  document.getElementById("balanceValue").textContent=user.balance;
-  document.getElementById("totalBetValue").textContent=user.totalBet||0;
+  if(!user) return;
+  document.getElementById("balanceBar").style.display = "flex";
+  document.getElementById("balanceValue").textContent = user.balance;
+  document.getElementById("totalBetValue").textContent = user.totalBet || 0;
 }
 function refreshBetHint(){
-  const el=document.getElementById("betBalanceHint");
-  if(el&&user)el.textContent=user.balance;
+  var el = document.getElementById("betBalanceHint");
+  if(el && user) el.textContent = user.balance;
 }
 
-// ===== 模拟开奖检测（前端轮询时检测变化）=====
-let lastNumber=null;
-setInterval(async()=>{
+// ===== 轮询检测开奖 =====
+setInterval(async function(){
   try{
-    const r=await fetch(API+"/data").then(x=>x.json());
-    if(r.currentNumber!==null&&r.currentNumber!=="--"&&r.currentNumber!==lastNumber){
-      lastNumber=r.currentNumber;
-      const now=new Date(),h=now.getHours();
-      const sess=h<13?"12:00 PM":"04:30 PM";
-      showResult(r.currentNumber,sess);
+    var resp = await fetch(API + "/data");
+    var r = await resp.json();
+    if(r && r.currentNumber !== null && r.currentNumber !== undefined && r.currentNumber !== "--"){
+      var num = r.currentNumber;
+      if(num !== lastNumber){
+        lastNumber = num;
+        var now = new Date();
+        var sess_name = now.getHours() < 13 ? "12:00 PM" : "04:30 PM";
+        showResult(num, sess_name);
+        // 刷新场次显示
+        if(r.sessions){
+          var s1 = r.sessions["12:00 PM"];
+          var s2 = r.sessions["04:30 PM"];
+          if(s1 && s1.number !== "--"){ document.getElementById("s1Num").textContent = (s1.number<10?"0"+s1.number:""+s1.number); document.getElementById("s1Num").classList.add("won"); }
+          if(s2 && s2.number !== "--"){ document.getElementById("s2Num").textContent = (s2.number<10?"0"+s2.number:""+s2.number); document.getElementById("s2Num").classList.add("won"); }
+        }
+        // 刷新投注记录
+        if(user) loadMyBets();
+      }
     }
   }catch(e){}
-},5000);
+}, 5000);
 </script>
 </body>
 </html>
