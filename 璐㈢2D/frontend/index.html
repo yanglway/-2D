@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>财神2D</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- 顶部状态栏 -->
+    <div class="header">
+        <div class="header-left">
+            <div class="main-number" id="currentNumber">45</div>
+            <div class="countdown" id="countdown">01:39:51 PM</div>
+        </div>
+        <div class="header-right">
+            <div class="icon-live">
+                <span class="infinity">∞</span>
+            </div>
+            <div class="badge-3d">3D</div>
+        </div>
+    </div>
+
+    <!-- 投注信息栏 -->
+    <div class="bet-info">
+        <div class="bet-row">
+            <span class="bet-label">SET:</span>
+            <span class="bet-value set-value" id="setValue">1,232.1</span>
+        </div>
+        <div class="bet-row">
+            <span class="bet-label">VAL:</span>
+            <span class="bet-value val-value" id="valValue">29,76 .31</span>
+        </div>
+    </div>
+
+    <!-- 日期选择 -->
+    <div class="date-section">
+        <div class="calendar-icon">📅</div>
+        <div class="date-text" id="currentDate">10/02/2020</div>
+    </div>
+
+    <!-- 时段开奖区域 -->
+    <div class="session-grid">
+        <div class="session-card" id="session1">
+            <div class="session-time">12:00 PM</div>
+            <div class="session-number" id="session1Num">45</div>
+        </div>
+        <div class="session-card" id="session2">
+            <div class="session-time">04:30 PM</div>
+            <div class="session-number" id="session2Num">--</div>
+        </div>
+    </div>
+
+    <!-- 投注选项条 -->
+    <div class="bet-bar">
+        <div class="bet-bar-left">
+            <span class="bet-bar-time">09:30 AM</span>
+        </div>
+        <div class="bet-bar-right">
+            <div class="bet-bar-line1">Modern 69</div>
+            <div class="bet-bar-line2">Internet 35</div>
+        </div>
+    </div>
+
+    <div class="bet-bar">
+        <div class="bet-bar-left">
+            <span class="bet-bar-time">02:00 PM</span>
+        </div>
+        <div class="bet-bar-right">
+            <div class="bet-bar-line1">Modern</div>
+            <div class="bet-bar-line2">Internet</div>
+            <div class="bet-bar-line3">--</div>
+        </div>
+    </div>
+
+    <!-- 底部导航 -->
+    <div class="bottom-nav">
+        <div class="nav-item active" data-tab="home">
+            <span class="nav-icon">🏠</span>
+            <span class="nav-text">首页</span>
+        </div>
+        <div class="nav-item" data-tab="bet">
+            <span class="nav-icon">🎯</span>
+            <span class="nav-text">投注</span>
+        </div>
+        <div class="nav-item" data-tab="history">
+            <span class="nav-icon">📊</span>
+            <span class="nav-text">记录</span>
+        </div>
+        <div class="nav-item" data-tab="me">
+            <span class="nav-icon">👤</span>
+            <span class="nav-text">我的</span>
+        </div>
+    </div>
+
+    <!-- 投注弹窗 -->
+    <div class="modal-overlay" id="betModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>投注确认</h3>
+                <span class="modal-close" id="closeModal">✕</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-row">
+                    <label>选择号码</label>
+                    <div class="number-grid" id="numberGrid"></div>
+                </div>
+                <div class="modal-row">
+                    <label>投注金额</label>
+                    <input type="number" id="betAmount" placeholder="请输入金额" min="1">
+                </div>
+                <div class="modal-row">
+                    <label>选择时段</label>
+                    <select id="betSession">
+                        <option value="12:00 PM">12:00 PM</option>
+                        <option value="04:30 PM">04:30 PM</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="cancelBet">取消</button>
+                <button class="btn-confirm" id="confirmBet">确认投注</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 开奖历史弹窗 -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>开奖记录</h3>
+                <span class="modal-close" id="closeHistory">✕</span>
+            </div>
+            <div class="modal-body">
+                <div class="history-list" id="historyList"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
