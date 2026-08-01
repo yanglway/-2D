@@ -5,180 +5,473 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>财神2D</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;background:linear-gradient(180deg,#1a1a2e 0%,#16213e 100%);color:#fff;min-height:100vh;padding-bottom:80px;overflow-x:hidden}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+  background: linear-gradient(180deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%);
+  color: #fff;
+  min-height: 100vh;
+  padding-bottom: 90px;
+  overflow-x: hidden;
+}
 
 /* ===== 顶部状态栏 ===== */
-.header{display:flex;justify-content:space-between;align-items:center;padding:16px;background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.1)}
-.header-left{display:flex;align-items:baseline;gap:12px}
-.main-number{font-size:48px;font-weight:900;color:#ff6b35;text-shadow:0 0 20px rgba(255,107,53,0.6);transition:all .3s}
-.main-number.pop{animation:pop .6s ease}
-@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.4);color:#f7c948}100%{transform:scale(1)}}
-.countdown{font-size:14px;color:#aaa;background:rgba(255,255,255,0.08);padding:4px 10px;border-radius:20px}
-.header-right{display:flex;align-items:center;gap:10px}
-.icon-live{background:rgba(255,107,53,0.15);padding:6px 10px;border-radius:50%}
-.infinity{font-size:18px;color:#ff6b35;font-weight:bold}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-left { display: flex; align-items: baseline; gap: 14px; }
+.main-number {
+  font-size: 56px;
+  font-weight: 900;
+  color: #ff6b35;
+  text-shadow: 0 0 40px rgba(255,107,53,0.5);
+  letter-spacing: 3px;
+  transition: all 0.4s;
+}
+.main-number.pop { animation: numPop 0.6s ease; }
+@keyframes numPop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); color: #f7c948; }
+  100% { transform: scale(1); }
+}
+.countdown {
+  font-size: 13px;
+  color: #aaa;
+  background: rgba(255,255,255,0.08);
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+.header-right { display: flex; align-items: center; gap: 10px; }
+.icon-live {
+  background: rgba(255,107,53,0.15);
+  padding: 8px 10px;
+  border-radius: 50%;
+  font-size: 16px;
+}
+.infinity { font-size: 18px; color: #ff6b35; font-weight: bold; }
 
 /* ===== 投注信息栏 ===== */
-.bet-info{padding:12px 16px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06)}
-.bet-row{display:flex;justify-content:space-between;align-items:center;margin:4px 0}
-.bet-label{color:#888;font-size:14px}
-.bet-value{font-size:16px;font-weight:600}
-.set-value{color:#4cd964}
-.val-value{color:#f7c948}
+.bet-info {
+  padding: 14px 20px;
+  background: rgba(255,255,255,0.02);
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.bet-row { display: flex; justify-content: space-between; align-items: center; margin: 5px 0; }
+.bet-label { color: #777; font-size: 13px; }
+.bet-value { font-size: 15px; font-weight: 600; }
+.set-value { color: #4cd964; }
+.val-value { color: #f7c948; }
 
 /* ===== 日期 ===== */
-.date-section{display:flex;align-items:center;gap:8px;padding:12px 16px;color:#ccc;font-size:14px}
+.date-section {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 20px; color: #999; font-size: 13px;
+}
 
-/* ===== 场次 ===== */
-.session-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px}
-.session-card{background:linear-gradient(145deg,#222244,#1a1a33);border-radius:16px;padding:20px 12px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.05);transition:transform .3s}
-.session-card:hover{transform:translateY(-2px)}
-.session-time{font-size:14px;color:#aaa;margin-bottom:10px}
-.session-number{font-size:42px;font-weight:900;text-shadow:0 0 15px rgba(255,255,255,0.3)}
-.session-status{font-size:12px;margin-top:8px;color:#4cd964}
+/* ===== 场次卡片 ===== */
+.session-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  padding: 16px 20px;
+}
+.session-card {
+  background: linear-gradient(145deg, #1e1e3a, #16162b);
+  border-radius: 18px;
+  padding: 24px 16px;
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.06);
+  transition: transform 0.3s;
+}
+.session-card:hover { transform: translateY(-3px); }
+.session-time { font-size: 13px; color: #888; margin-bottom: 12px; font-weight: 500; }
+.session-number {
+  font-size: 48px;
+  font-weight: 900;
+  color: #fff;
+  text-shadow: 0 0 20px rgba(255,255,255,0.15);
+  transition: color 0.3s;
+}
+.session-number.drawn {
+  color: #ff6b35;
+  text-shadow: 0 0 25px rgba(255,107,53,0.6);
+}
+.session-status { font-size: 12px; margin-top: 10px; color: #4cd964; font-weight: 500; }
+.session-status.waiting { color: #f7c948; }
 
 /* ===== 开奖横幅 ===== */
-.result-banner{display:none;background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;text-align:center;padding:12px 16px;font-size:16px;font-weight:bold;border-radius:12px;margin:8px 16px;box-shadow:0 4px 20px rgba(255,107,53,0.4);animation:bannerIn .5s ease}
-@keyframes bannerIn{0%{transform:scale(.8);opacity:0}100%{transform:scale(1);opacity:1}}
+.result-banner {
+  display: none;
+  background: linear-gradient(135deg, #ff6b35, #f7c948);
+  color: #fff;
+  text-align: center;
+  padding: 14px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 14px;
+  margin: 10px 20px;
+  box-shadow: 0 4px 25px rgba(255,107,53,0.4);
+}
+.result-banner.show { display: block; animation: bannerIn 0.5s ease; }
+@keyframes bannerIn { 0% { transform: scale(0.85); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
 /* ===== 余额条 ===== */
-.balance-bar{display:none;justify-content:space-between;background:rgba(255,255,255,0.05);backdrop-filter:blur(10px);color:#fff;padding:10px 16px;font-size:14px;border-radius:12px;margin:8px 16px;border:1px solid rgba(255,255,255,0.1)}
-.balance-bar b{color:#ff6b35;font-size:16px}
+.balance-bar {
+  display: none;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  color: #fff;
+  padding: 12px 20px;
+  font-size: 14px;
+  border-radius: 12px;
+  margin: 10px 20px;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.balance-bar b { color: #ff6b35; font-size: 16px; }
 
 /* ===== 广告弹窗 ===== */
-.ad-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);z-index:9998;align-items:center;justify-content:center;padding:20px}
-.ad-overlay.show{display:flex}
-.ad-content{background:linear-gradient(180deg,#1e1e3a,#16162b);border-radius:20px;padding:30px;max-width:400px;width:100%;text-align:center;border:1px solid rgba(255,255,255,0.1);box-shadow:0 20px 60px rgba(0,0,0,0.5)}
-.ad-content h3{color:#ff6b35;margin-bottom:12px;font-size:20px}
-.ad-content p{color:#ccc;line-height:1.6;margin-bottom:20px}
-.ad-content button{background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;border:none;padding:12px 32px;border-radius:12px;font-size:15px;cursor:pointer;font-weight:600}
+.ad-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  z-index: 9998;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.ad-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+.ad-content {
+  background: linear-gradient(180deg, #1e1e3a, #16162b);
+  border-radius: 24px;
+  padding: 36px 30px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 25px 70px rgba(0,0,0,0.6);
+  animation: popIn 0.4s ease;
+}
+@keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.ad-content h3 { color: #ff6b35; margin-bottom: 14px; font-size: 22px; }
+.ad-content p { color: #ccc; line-height: 1.7; margin-bottom: 24px; font-size: 14px; }
+.ad-content button {
+  background: linear-gradient(135deg, #ff6b35, #f7c948);
+  color: #fff; border: none; padding: 14px 40px;
+  border-radius: 14px; font-size: 15px; cursor: pointer; font-weight: 600;
+  box-shadow: 0 4px 15px rgba(255,107,53,0.3);
+}
 
 /* ===== 跑马灯 ===== */
-.marquee{display:none;background:rgba(255,107,53,0.1);border:1px solid rgba(255,107,53,0.2);color:#ff6b35;padding:8px 16px;font-size:13px;overflow:hidden;white-space:nowrap;margin:0 16px 8px;border-radius:8px}
-.marquee.show{display:block}
-.marquee span{display:inline-block;animation:scroll 15s linear infinite}
-@keyframes scroll{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+.marquee {
+  display: none;
+  background: rgba(255,107,53,0.08);
+  border: 1px solid rgba(255,107,53,0.15);
+  color: #ff6b35;
+  padding: 10px 16px;
+  font-size: 13px;
+  overflow: hidden;
+  white-space: nowrap;
+  margin: 0 20px 10px;
+  border-radius: 10px;
+}
+.marquee.show { display: block; }
+.marquee span { display: inline-block; animation: scroll 18s linear infinite; font-weight: 500; }
+@keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
 
 /* ===== 底部导航 ===== */
-.bottom-nav{position:fixed;bottom:0;left:0;right:0;height:70px;background:rgba(26,26,46,0.95);backdrop-filter:blur(20px);display:flex;justify-content:space-around;align-items:center;border-top:1px solid rgba(255,255,255,0.1);z-index:1000}
-.nav-item{display:flex;flex-direction:column;align-items:center;gap:4px;color:#666;font-size:11px;cursor:pointer;padding:8px 0;flex:1;transition:color .3s}
-.nav-item.active{color:#ff6b35}
-.nav-icon{font-size:22px}
+.bottom-nav {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 72px;
+  background: rgba(15,15,35,0.95);
+  backdrop-filter: blur(20px);
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  z-index: 1000;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #555;
+  font-size: 10px;
+  cursor: pointer;
+  padding: 8px 0;
+  flex: 1;
+  transition: color 0.3s;
+}
+.nav-item.active { color: #ff6b35; }
+.nav-icon { font-size: 22px; margin-bottom: 2px; }
 
-/* ===== 投注弹窗 ===== */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;z-index:2000;padding:20px}
-.modal-overlay.show{display:flex}
-.modal-content{background:linear-gradient(180deg,#1e1e3a,#16162b);border-radius:20px;width:100%;max-width:420px;max-height:85vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);animation:modalIn .3s ease}
-@keyframes modalIn{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,0.08)}
-.modal-header h3{font-size:18px}
-.modal-close{font-size:22px;color:#888;cursor:pointer}
-.modal-body{padding:20px}
-.modal-row{margin-bottom:18px}
-.modal-row label{display:block;font-size:14px;color:#aaa;margin-bottom:8px}
-.modal-row input,.modal-row select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.06);color:#fff;font-size:15px;outline:none}
-.modal-row input:focus,.modal-row select:focus{border-color:#ff6b35}
-.modal-footer{display:flex;gap:12px;padding:0 20px 20px}
-.btn-cancel,.btn-confirm{flex:1;padding:14px;border-radius:14px;border:none;font-size:16px;font-weight:600;cursor:pointer}
-.btn-cancel{background:rgba(255,255,255,0.08);color:#ccc}
-.btn-confirm{background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;box-shadow:0 4px 15px rgba(255,107,53,0.4)}
+/* ===== 弹窗通用 ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(6px);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.modal-overlay.show { display: flex; animation: fadeIn 0.25s ease; }
+.modal-content {
+  background: linear-gradient(180deg, #1e1e3a, #16162b);
+  border-radius: 24px;
+  width: 100%;
+  max-width: 440px;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 70px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.1);
+  animation: popIn 0.3s ease;
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.modal-header h3 { font-size: 18px; color: #fff; }
+.modal-close { font-size: 24px; color: #888; cursor: pointer; padding: 4px 8px; line-height: 1; }
+.modal-close:hover { color: #fff; }
+.modal-body { padding: 24px; }
+.modal-row { margin-bottom: 18px; }
+.modal-row label { display: block; font-size: 13px; color: #999; margin-bottom: 8px; font-weight: 500; }
+.modal-row input, .modal-row select {
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+.modal-row input:focus, .modal-row select:focus { border-color: #ff6b35; background: rgba(255,107,53,0.05); }
+.modal-footer { display: flex; gap: 12px; padding: 0 24px 24px; }
+.btn-cancel, .btn-confirm {
+  flex: 1; padding: 15px;
+  border-radius: 14px; border: none;
+  font-size: 16px; font-weight: 600;
+  cursor: pointer; transition: all 0.3s;
+}
+.btn-cancel { background: rgba(255,255,255,0.06); color: #ccc; }
+.btn-cancel:hover { background: rgba(255,255,255,0.1); }
+.btn-confirm { background: linear-gradient(135deg, #ff6b35, #f7c948); color: #fff; box-shadow: 0 4px 18px rgba(255,107,53,0.35); }
+.btn-confirm:active { transform: scale(0.97); }
+.btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* ===== 号码网格 ===== */
-.number-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:6px;max-height:260px;overflow-y:auto;padding:8px;background:rgba(0,0,0,0.2);border-radius:12px}
-.number-cell{aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.05);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;border:1px solid transparent}
-.number-cell:hover{background:rgba(255,255,255,0.1)}
-.number-cell.selected{background:linear-gradient(135deg,#ff6b35,#f7c948);color:#fff;transform:scale(1.1);box-shadow:0 0 15px rgba(255,107,53,0.5)}
+.number-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 1fr);
+  gap: 6px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding: 10px;
+  background: rgba(0,0,0,0.25);
+  border-radius: 14px;
+}
+.number-cell {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+  color: #ccc;
+}
+.number-cell:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.number-cell.selected {
+  background: linear-gradient(135deg, #ff6b35, #f7c948);
+  color: #fff;
+  transform: scale(1.08);
+  box-shadow: 0 0 18px rgba(255,107,53,0.5);
+  border-color: rgba(255,255,255,0.2);
+}
+.number-grid::-webkit-scrollbar { width: 4px; }
+.number-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
 
-/* ===== 登录/注册弹窗 ===== */
-.auth-tabs{display:flex;gap:0;margin-bottom:20px;border-bottom:1px solid rgba(255,255,255,0.1)}
-.auth-tab{flex:1;padding:12px;text-align:center;cursor:pointer;color:#888;font-size:15px;border-bottom:2px solid transparent;transition:all .3s}
-.auth-tab.active{color:#ff6b35;border-bottom-color:#ff6b35;font-weight:600}
+/* ===== 登录/注册 ===== */
+.auth-tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+.auth-tab {
+  flex: 1; padding: 14px; text-align: center; cursor: pointer;
+  color: #777; font-size: 15px; border-bottom: 2px solid transparent;
+  transition: all 0.3s; font-weight: 500;
+}
+.auth-tab.active { color: #ff6b35; border-bottom-color: #ff6b35; font-weight: 600; }
 
 /* ===== 历史记录 ===== */
-.history-list{max-height:400px;overflow-y:auto}
-.history-item{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
-.history-date{font-size:14px;color:#ccc}
-.history-session{font-size:12px;color:#888;margin-top:2px}
-.history-number{font-size:24px;font-weight:900;color:#ff6b35;background:rgba(255,107,53,0.1);width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center}
-
-/* ===== Toast ===== */
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:rgba(0,0,0,0.85);color:#fff;padding:12px 24px;border-radius:30px;font-size:14px;z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast.ok{background:#2ed573}
-.toast.err{background:#ff4757}
-
-/* ===== 滚动条 ===== */
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.2);border-radius:4px}
+.history-list { max-height: 450px; overflow-y: auto; padding: 0 4px; }
+.history-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 16px 8px; border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.history-item:last-child { border-bottom: none; }
+.history-date { font-size: 14px; color: #ccc; font-weight: 500; }
+.history-session { font-size: 11px; color: #666; margin-top: 3px; }
+.history-number {
+  font-size: 26px; font-weight: 900; color: #ff6b35;
+  background: rgba(255,107,53,0.1); width: 52px; height: 52px;
+  border-radius: 50%; display: flex; align-items: center; justify-content: center;
+}
 
 /* ===== 我的账户 ===== */
-.account-info{padding:20px}
-.account-row{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06)}
-.account-row label{color:#888;font-size:14px}
-.account-row span{font-size:15px;font-weight:600}
-.account-row span.highlight{color:#ff6b35}
+.account-info { padding: 20px 4px; }
+.account-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.account-row label { color: #888; font-size: 14px; }
+.account-row span { font-size: 15px; font-weight: 600; color: #fff; }
+.account-row span.hl { color: #ff6b35; font-size: 17px; }
+
+/* ===== 投注记录列表 ===== */
+.bet-list { max-height: 350px; overflow-y: auto; padding: 0 4px; }
+.bet-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.bet-item:last-child { border-bottom: none; }
+.bet-info-left { display: flex; flex-direction: column; gap: 3px; }
+.bet-num { font-size: 20px; font-weight: 800; color: #ff6b35; }
+.bet-meta { font-size: 11px; color: #666; }
+.bet-info-right { text-align: right; }
+.bet-amount { font-size: 14px; color: #ccc; font-weight: 500; }
+.bet-status { font-size: 11px; margin-top: 3px; font-weight: 500; }
+.bet-status.won { color: #4cd964; }
+.bet-status.lost { color: #666; }
+.bet-status.pending { color: #f7c948; }
+
+/* ===== 报表卡片 ===== */
+.report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.report-card { background: rgba(255,255,255,0.04); border-radius: 12px; padding: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+.report-card .rc-label { font-size: 11px; color: #777; margin-bottom: 6px; }
+.report-card .rc-value { font-size: 20px; font-weight: 800; }
+.report-card.orange .rc-value { color: #ff6b35; }
+.report-card.green .rc-value { color: #4cd964; }
+.report-card.gold .rc-value { color: #f7c948; }
+.report-card.red .rc-value { color: #ff4757; }
+.report-card.blue .rc-value { color: #1e90ff; }
+
+/* ===== Toast ===== */
+.toast {
+  position: fixed;
+  bottom: 90px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: rgba(0,0,0,0.88);
+  color: #fff;
+  padding: 14px 28px;
+  border-radius: 30px;
+  font-size: 14px;
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.35s;
+  pointer-events: none;
+  white-space: nowrap;
+  font-weight: 500;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast.ok { background: #2ed573; }
+.toast.err { background: #ff4757; }
+.toast.info { background: #1e90ff; }
+
+/* ===== 空状态 ===== */
+.empty-state { text-align: center; padding: 40px 20px; color: #555; }
+.empty-state .es-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+.empty-state .es-text { font-size: 14px; }
+
+/* ===== 滚动条 ===== */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
 
 /* ===== 响应式 ===== */
-@media(max-width:375px){
-  .main-number{font-size:40px}
-  .session-number{font-size:36px}
-  .number-grid{grid-template-columns:repeat(8,1fr)}
+@media (max-width: 375px) {
+  .main-number { font-size: 44px; }
+  .session-number { font-size: 40px; }
+  .number-grid { grid-template-columns: repeat(8, 1fr); }
+  .report-grid { grid-template-columns: 1fr 1fr; }
 }
 </style>
 </head>
 <body>
 
-<!-- 顶部 -->
+<!-- ===== 顶部 ===== -->
 <div class="header">
   <div class="header-left">
     <div class="main-number" id="currentNumber">--</div>
     <div class="countdown" id="countdown">--:--:--</div>
   </div>
   <div class="header-right">
-    <div class="icon-live"><span class="infinity">∞</span></div>
+    <div class="icon-live"><span class="infinity">&#8734;</span></div>
   </div>
 </div>
 
-<!-- 投注信息 -->
+<!-- ===== 投注信息 ===== -->
 <div class="bet-info">
   <div class="bet-row"><span class="bet-label">SET:</span><span class="bet-value set-value" id="setValue">--</span></div>
   <div class="bet-row"><span class="bet-label">VAL:</span><span class="bet-value val-value" id="valValue">--</span></div>
 </div>
 
-<!-- 日期 -->
+<!-- ===== 日期 ===== -->
 <div class="date-section">
-  <span>📅</span>
+  <span>&#128197;</span>
   <span id="currentDate">--</span>
 </div>
 
-<!-- 场次 -->
+<!-- ===== 场次卡片 ===== -->
 <div class="session-grid">
   <div class="session-card" id="card1">
     <div class="session-time">12:00 PM</div>
     <div class="session-number" id="s1Num">--</div>
-    <div class="session-status" id="s1Status"></div>
+    <div class="session-status waiting" id="s1Status">&#9203; 等待中</div>
   </div>
   <div class="session-card" id="card2">
     <div class="session-time">04:30 PM</div>
     <div class="session-number" id="s2Num">--</div>
-    <div class="session-status" id="s2Status"></div>
+    <div class="session-status waiting" id="s2Status">&#9203; 等待中</div>
   </div>
 </div>
 
-<!-- 开奖横幅 -->
+<!-- ===== 开奖横幅 ===== -->
 <div class="result-banner" id="resultBanner"><span id="resultText"></span></div>
 
-<!-- 跑马灯 -->
+<!-- ===== 跑马灯 ===== -->
 <div class="marquee" id="marquee"><span id="marqueeText"></span></div>
 
-<!-- 余额条 -->
+<!-- ===== 余额条 ===== -->
 <div class="balance-bar" id="balanceBar">
-  <span>余额: ¥<b id="balanceValue">0</b></span>
-  <span>总投注: ¥<b id="totalBetValue">0</b></span>
+  <span>余额: &#165;<b id="balanceValue">0</b></span>
+  <span>总投注: &#165;<b id="totalBetValue">0</b></span>
 </div>
 
-<!-- 广告弹窗 -->
+<!-- ===== 广告弹窗 ===== -->
 <div class="ad-overlay" id="adOverlay">
   <div class="ad-content">
     <h3 id="adTitle"></h3>
@@ -187,25 +480,25 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue"
   </div>
 </div>
 
-<!-- 底部导航 -->
+<!-- ===== 底部导航 ===== -->
 <div class="bottom-nav">
-  <div class="nav-item active" data-tab="home"><span class="nav-icon">🏠</span><span>首页</span></div>
-  <div class="nav-item" data-tab="bet"><span class="nav-icon">🎯</span><span>投注</span></div>
-  <div class="nav-item" data-tab="history"><span class="nav-icon">📊</span><span>记录</span></div>
-  <div class="nav-item" data-tab="me"><span class="nav-icon">👤</span><span>我的</span></div>
+  <div class="nav-item active" data-tab="home"><span class="nav-icon">&#127968;</span><span>首页</span></div>
+  <div class="nav-item" data-tab="bet"><span class="nav-icon">&#127919;</span><span>投注</span></div>
+  <div class="nav-item" data-tab="history"><span class="nav-icon">&#128202;</span><span>记录</span></div>
+  <div class="nav-item" data-tab="me"><span class="nav-icon">&#128100;</span><span>我的</span></div>
 </div>
 
-<!-- 投注弹窗 -->
+<!-- ===== 投注弹窗 ===== -->
 <div class="modal-overlay" id="betModal">
   <div class="modal-content">
-    <div class="modal-header"><h3>投注确认</h3><span class="modal-close" onclick="closeModal('betModal')">✕</span></div>
+    <div class="modal-header"><h3>&#127919; 投注</h3><span class="modal-close" onclick="closeModal('betModal')">&#10005;</span></div>
     <div class="modal-body">
       <div class="modal-row">
-        <label>选择号码</label>
+        <label>选择号码（0-99）</label>
         <div class="number-grid" id="numberGrid"></div>
       </div>
       <div class="modal-row">
-        <label>投注金额</label>
+        <label>投注金额（¥）</label>
         <input type="number" id="betAmount" placeholder="请输入金额" min="1">
       </div>
       <div class="modal-row">
@@ -215,7 +508,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue"
           <option value="04:30 PM">04:30 PM</option>
         </select>
       </div>
-      <div class="modal-row" style="text-align:right;color:#ff6b35;font-size:13px">余额: ¥<b id="betBalanceHint">0</b></div>
+      <div class="modal-row" style="text-align:right;color:#ff6b35;font-size:13px;margin-bottom:0">
+        余额: &#165;<b id="betBalanceHint">0</b>
+      </div>
     </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal('betModal')">取消</button>
@@ -224,22 +519,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue"
   </div>
 </div>
 
-<!-- 历史弹窗 -->
+<!-- ===== 历史记录弹窗 ===== -->
 <div class="modal-overlay" id="historyModal">
   <div class="modal-content">
-    <div class="modal-header"><h3>开奖记录</h3><span class="modal-close" onclick="closeModal('historyModal')">✕</span></div>
+    <div class="modal-header"><h3>&#128202; 开奖记录</h3><span class="modal-close" onclick="closeModal('historyModal')">&#10005;</span></div>
     <div class="modal-body">
       <div class="history-list" id="historyList"></div>
     </div>
   </div>
 </div>
 
-<!-- 我的弹窗 -->
+<!-- ===== 我的弹窗 ===== -->
 <div class="modal-overlay" id="meModal">
   <div class="modal-content">
-    <div class="modal-header"><h3 id="meTitle">登录账号</h3><span class="modal-close" onclick="closeModal('meModal')">✕</span></div>
+    <div class="modal-header"><h3 id="meTitle">&#128100; 我的账户</h3><span class="modal-close" onclick="closeModal('meModal')">&#10005;</span></div>
     <div class="modal-body">
-      <!-- 登录 -->
+      <!-- 登录表单 -->
       <div id="loginForm">
         <div class="auth-tabs">
           <div class="auth-tab active" id="tabLogin" onclick="switchAuth('login')">登录</div>
@@ -247,9 +542,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue"
         </div>
         <div class="modal-row"><label>用户名</label><input type="text" id="loginUsername" placeholder="请输入用户名"></div>
         <div class="modal-row"><label>密码</label><input type="password" id="loginPassword" placeholder="请输入密码"></div>
-        <div class="modal-row"><button class="btn-confirm" style="width:100%" id="btnLogin">登录</button></div>
+        <div class="modal-footer" style="padding:0">
+          <button class="btn-confirm" style="width:100%" id="btnLogin">登录</button>
+        </div>
       </div>
-      <!-- 注册 -->
+      <!-- 注册表单 -->
       <div id="registerForm" style="display:none">
         <div class="auth-tabs">
           <div class="auth-tab" id="tabLogin2" onclick="switchAuth('login')">登录</div>
@@ -258,219 +555,452 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue"
         <div class="modal-row"><label>用户名</label><input type="text" id="regUsername" placeholder="请输入用户名"></div>
         <div class="modal-row"><label>密码（至少4位）</label><input type="password" id="regPassword" placeholder="请输入密码"></div>
         <div class="modal-row"><label>确认密码</label><input type="password" id="regPassword2" placeholder="再次输入密码"></div>
-        <div class="modal-row"><button class="btn-confirm" style="width:100%" id="btnRegister">注册</button></div>
+        <div class="modal-footer" style="padding:0">
+          <button class="btn-confirm" style="width:100%" id="btnRegister">注册</button>
+        </div>
       </div>
-      <!-- 已登录 -->
+      <!-- 已登录信息 -->
       <div id="userInfo" style="display:none">
         <div class="account-info">
           <div class="account-row"><label>用户名</label><span id="displayUsername"></span></div>
-          <div class="account-row"><label>余额</label><span class="highlight">¥ <b id="displayBalance">0</b></span></div>
-          <div class="account-row"><label>总投注</label><span>¥ <b id="displayTotalBet">0</b></span></div>
+          <div class="account-row"><label>余额</label><span class="hl">&#165; <b id="displayBalance">0</b></span></div>
+          <div class="account-row"><label>总投注</label><span>&#165; <b id="displayTotalBet">0</b></span></div>
         </div>
-        <div class="modal-row"><button class="btn-cancel" style="width:100%" id="btnLogout">退出登录</button></div>
+        <div style="margin-top:8px">
+          <h4 style="color:#ccc;font-size:14px;margin-bottom:8px">&#127919; 投注记录</h4>
+          <div class="bet-list" id="myBetList"></div>
+        </div>
+        <div class="report-grid" id="myReport"></div>
+        <div class="modal-footer" style="padding:0;margin-top:20px">
+          <button class="btn-cancel" style="width:100%;background:#ff4757;color:#fff" id="btnLogout">退出登录</button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-// ===== 全局 =====
-const API = "https://miantong.pythonanywhere.com/api";
-let user = JSON.parse(localStorage.getItem("user") || "null");
-let currentNumber = null;
-let selectedNumber = null;
+// ===== 全局配置（⚠️ 改成你自己的 PythonAnywhere 用户名）=====
+var API = "https://miantong.pythonanywhere.com/api";
+var user = JSON.parse(localStorage.getItem("user") || "null");
+var lastNumber = null;
+var selectedNumber = null;
+var countdown = 600;
 
-// ===== Toast =====
-function toast(msg, type){
-  let t = document.querySelector(".toast");
-  if(!t){t=document.createElement("div");t.className="toast";document.body.appendChild(t)}
-  t.textContent=msg;t.className="toast show "+(type||"");
-  setTimeout(()=>t.classList.remove("show"),2500);
+// ===== Toast 通知 =====
+function toast(msg, type) {
+  var t = document.querySelector(".toast");
+  if (!t) {
+    t = document.createElement("div");
+    t.className = "toast";
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.className = "toast show " + (type || "info");
+  setTimeout(function() { t.className = "toast"; }, 2800);
 }
 
-// ===== 工具 =====
-function openModal(id){document.getElementById(id).classList.add("show")}
-function closeModal(id){document.getElementById(id).classList.remove("show")}
+// ===== 工具函数 =====
+function openModal(id) { document.getElementById(id).classList.add("show"); }
+function closeModal(id) { document.getElementById(id).classList.remove("show"); }
+
+function formatNum(n) {
+  if (n === null || n === undefined || n === "--") return "--";
+  var num = parseInt(n);
+  if (isNaN(num)) return "--";
+  return (num < 10 ? "0" + num : "" + num);
+}
+
+// ===== 号码网格初始化 =====
+function initNumberGrid() {
+  var g = document.getElementById("numberGrid");
+  for (var i = 0; i <= 99; i++) {
+    (function(num) {
+      var c = document.createElement("div");
+      c.className = "number-cell";
+      c.textContent = formatNum(num);
+      c.onclick = function() {
+        var all = document.querySelectorAll(".number-cell");
+        for (var j = 0; j < all.length; j++) all[j].classList.remove("selected");
+        c.classList.add("selected");
+        selectedNumber = num;
+      };
+    })(i);
+  }
+}
+
+// ===== 倒计时 =====
+function initCountdown() {
+  updateCountdown();
+  setInterval(function() {
+    countdown--;
+    if (countdown <= 0) countdown = 600;
+    updateCountdown();
+  }, 1000);
+}
+function updateCountdown() {
+  var t = Math.max(0, countdown);
+  var h = Math.floor(t / 3600);
+  var m = Math.floor((t % 3600) / 60);
+  var s = t % 60;
+  var apm = h >= 12 ? "PM" : "AM";
+  var h12 = h % 12 || 12;
+  document.getElementById("countdown").textContent =
+    formatNum(h12) + ":" + formatNum(m) + ":" + formatNum(s) + " " + apm;
+}
+
+// ===== 日期 =====
+function initDate() {
+  var n = new Date();
+  var d = formatNum(n.getDate());
+  var m = formatNum(n.getMonth() + 1);
+  document.getElementById("currentDate").textContent = d + "/" + m + "/" + n.getFullYear();
+}
+
+// ===== 导航 =====
+function initNav() {
+  var items = document.querySelectorAll(".nav-item");
+  for (var i = 0; i < items.length; i++) {
+    items[i].onclick = function() {
+      var all = document.querySelectorAll(".nav-item");
+      for (var j = 0; j < all.length; j++) all[j].classList.remove("active");
+      this.classList.add("active");
+      var t = this.getAttribute("data-tab");
+      if (t === "bet") {
+        if (!user) { toast("请先登录", "err"); openModal("meModal"); return; }
+        refreshBetHint();
+        openModal("betModal");
+      } else if (t === "history") {
+        loadHistory();
+        openModal("historyModal");
+      } else if (t === "me") {
+        showMePage();
+        openModal("meModal");
+      }
+    };
+  }
+}
+
+// ===== 核心：数据加载（开奖号码显示）=====
+function loadData() {
+  fetch(API + "/data")
+    .then(function(r) { return r.json(); })
+    .then(function(r) {
+      if (!r.success) return;
+
+      // 顶部大号号码
+      var curNum = r.currentNumber;
+      var topEl = document.getElementById("currentNumber");
+      topEl.textContent = formatNum(curNum);
+      if (curNum !== "--" && curNum !== null) {
+        topEl.classList.remove("pop");
+        void topEl.offsetWidth;
+        topEl.classList.add("pop");
+      }
+
+      // SET / VAL
+      document.getElementById("setValue").textContent = r.set || "--";
+      document.getElementById("valValue").textContent = r.val || "--";
+
+      // 场次号码
+      var s1 = (r.sessions && r.sessions["12:00 PM"]) || {};
+      var s2 = (r.sessions && r.sessions["04:30 PM"]) || {};
+      var s1El = document.getElementById("s1Num");
+      var s2El = document.getElementById("s2Num");
+      s1El.textContent = formatNum(s1.number);
+      s2El.textContent = formatNum(s2.number);
+
+      // 场次状态
+      var s1St = document.getElementById("s1Status");
+      var s2St = document.getElementById("s2Status");
+      if (s1.status === "closed") { s1St.textContent = "\u2705 已开奖"; s1St.className = "session-status"; s1El.classList.add("drawn"); }
+      else { s1St.textContent = "\u23f3 等待中"; s1St.className = "session-status waiting"; }
+      if (s2.status === "closed") { s2St.textContent = "\u2705 已开奖"; s2St.className = "session-status"; s2El.classList.add("drawn"); }
+      else { s2St.textContent = "\u23f3 等待中"; s2St.className = "session-status waiting"; }
+
+      // 开奖横幅
+      if (curNum !== "--" && curNum !== null && curNum !== lastNumber) {
+        lastNumber = curNum;
+        var sess = s2.status === "closed" ? "04:30 PM" : "12:00 PM";
+        showResult(curNum, sess);
+      }
+
+      // 跑马灯
+      if (r.ads && r.ads.marquee && r.ads.marquee.enabled) {
+        document.getElementById("marquee").classList.add("show");
+        document.getElementById("marqueeText").textContent = r.ads.marquee.content || "";
+      }
+    })
+    .catch(function(e) { console.warn("loadData error:", e); });
+}
+
+// ===== 开奖横幅 =====
+function showResult(num, session) {
+  var banner = document.getElementById("resultBanner");
+  document.getElementById("resultText").textContent =
+    "\ud83c\udf89 " + session + " 开奖号码: " + formatNum(num);
+  banner.classList.remove("show");
+  void banner.offsetWidth;
+  banner.classList.add("show");
+  setTimeout(function() { banner.classList.remove("show"); }, 5000);
+  toast("\ud83c\udf89 开奖: " + formatNum(num), "ok");
+}
+
+// ===== 广告弹窗 =====
+function showAd() {
+  fetch(API + "/data")
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.ads && d.ads.popup && d.ads.popup.enabled) {
+        document.getElementById("adTitle").textContent = d.ads.popup.title || "";
+        document.getElementById("adContent").textContent = d.ads.popup.content || "";
+        document.getElementById("adOverlay").classList.add("show");
+      }
+    })
+    .catch(function() {});
+}
+function closeAd() { document.getElementById("adOverlay").classList.remove("show"); }
+
+// ===== 投注功能（核心）=====
+function refreshBetHint() {
+  var el = document.getElementById("betBalanceHint");
+  if (el && user) el.textContent = user.balance;
+}
+
+document.getElementById("confirmBet").onclick = function() {
+  var amt = parseFloat(document.getElementById("betAmount").value);
+  var s = document.getElementById("betSession").value;
+
+  if (selectedNumber === null) { toast("请选择号码", "err"); return; }
+  if (!amt || amt <= 0) { toast("请输入有效金额", "err"); return; }
+  if (!user) { toast("请先登录", "err"); openModal("meModal"); return; }
+  if (amt > user.balance) { toast("余额不足", "err"); return; }
+
+  var btn = document.getElementById("confirmBet");
+  btn.disabled = true;
+  btn.textContent = "投注中...";
+
+  fetch(API + "/bet", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username: user.username,
+      number: selectedNumber,
+      amount: amt,
+      session: s,
+      timestamp: new Date().toISOString()
+    })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(r) {
+    btn.disabled = false;
+    btn.textContent = "确认投注";
+    if (r.success) {
+      toast("\u2705 投注成功！号码:" + selectedNumber + " 金额:\u00a5" + amt, "ok");
+      user.balance = r.balance;
+      user.totalBet = (user.totalBet || 0) + amt;
+      localStorage.setItem("user", JSON.stringify(user));
+      refreshBalanceBar();
+      refreshBetHint();
+      closeModal("betModal");
+      document.getElementById("betAmount").value = "";
+      selectedNumber = null;
+      var cells = document.querySelectorAll(".number-cell");
+      for (var i = 0; i < cells.length; i++) cells[i].classList.remove("selected");
+    } else {
+      toast((r.message || "投注失败"), "err");
+    }
+  })
+  .catch(function() { btn.disabled = false; btn.textContent = "确认投注"; toast("网络错误", "err"); });
+};
+
+// ===== 历史记录 =====
+function loadHistory() {
+  fetch(API + "/history")
+    .then(function(r) { return r.json(); })
+    .then(function(r) {
+      var list = document.getElementById("historyList");
+      if (!r.history || r.history.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="es-icon">\ud83d\udcdd</div><div class="es-text">暂无开奖记录</div></div>';
+        return;
+      }
+      var html = "";
+      for (var i = 0; i < r.history.length; i++) {
+        var h = r.history[i];
+        html += '<div class="history-item"><div><div class="history-date">' + h.date + '</div><div class="history-session">' + h.session + '</div></div><div class="history-number">' + formatNum(h.number) + '</div></div>';
+      }
+      list.innerHTML = html;
+    })
+    .catch(function() {
+      document.getElementById("historyList").innerHTML = '<div class="empty-state"><div class="es-icon">\u26a0\ufe0f</div><div class="es-text" style="color:#ff4757">加载失败</div></div>';
+    });
+}
+
+// ===== 认证（登录/注册）=====
+function initAuth() {
+  // 登录
+  document.getElementById("btnLogin").onclick = function() {
+    var u = document.getElementById("loginUsername").value.trim();
+    var p = document.getElementById("loginPassword").value;
+    if (!u || !p) { toast("请输入账号和密码", "err"); return; }
+    var btn = document.getElementById("btnLogin");
+    btn.disabled = true; btn.textContent = "登录中...";
+    fetch(API + "/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: u, password: p })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(r) {
+      btn.disabled = false; btn.textContent = "登录";
+      if (r.success) {
+        user = { username: r.username, balance: r.balance, totalBet: r.totalBet };
+        localStorage.setItem("user", JSON.stringify(user));
+        toast("\u2705 登录成功", "ok");
+        refreshBalanceBar();
+        showMePage();
+        showAd();
+      } else { toast((r.message || "登录失败"), "err"); }
+    })
+    .catch(function() { btn.disabled = false; btn.textContent = "登录"; toast("网络错误", "err"); });
+  };
+
+  // 注册
+  document.getElementById("btnRegister").onclick = function() {
+    var u = document.getElementById("regUsername").value.trim();
+    var p1 = document.getElementById("regPassword").value;
+    var p2 = document.getElementById("regPassword2").value;
+    if (!u || !p1) { toast("请输入用户名和密码", "err"); return; }
+    if (p1.length < 4) { toast("密码至少4位", "err"); return; }
+    if (p1 !== p2) { toast("两次密码不一致", "err"); return; }
+    var btn = document.getElementById("btnRegister");
+    btn.disabled = true; btn.textContent = "注册中...";
+    fetch(API + "/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: u, password: p1 })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(r) {
+      btn.disabled = false; btn.textContent = "注册";
+      if (r.success) {
+        toast("\u2705 注册成功！赠送 \u00a5" + r.balance, "ok");
+        user = { username: u, balance: r.balance, totalBet: 0 };
+        localStorage.setItem("user", JSON.stringify(user));
+        refreshBalanceBar();
+        showMePage();
+      } else { toast((r.message || "注册失败"), "err"); }
+    })
+    .catch(function() { btn.disabled = false; btn.textContent = "注册"; toast("网络错误", "err"); });
+  };
+
+  // 退出
+  document.getElementById("btnLogout").onclick = function() {
+    user = null;
+    localStorage.removeItem("user");
+    document.getElementById("balanceBar").style.display = "none";
+    toast("已退出登录", "info");
+    showMePage();
+  };
+}
+
+function switchAuth(tab) {
+  document.getElementById("loginForm").style.display = tab === "login" ? "block" : "none";
+  document.getElementById("registerForm").style.display = tab === "register" ? "block" : "none";
+  document.getElementById("tabLogin").classList.toggle("active", tab === "login");
+  document.getElementById("tabReg").classList.toggle("active", tab === "register");
+  document.getElementById("tabLogin2").classList.toggle("active", tab === "login");
+  document.getElementById("tabReg2").classList.toggle("active", tab === "register");
+}
+
+// ===== 我的页面（含投注记录 + 报表）=====
+function showMePage() {
+  var lf = document.getElementById("loginForm");
+  var rf = document.getElementById("registerForm");
+  var ui = document.getElementById("userInfo");
+  if (user) {
+    lf.style.display = "none";
+    rf.style.display = "none";
+    ui.style.display = "block";
+    document.getElementById("displayUsername").textContent = user.username;
+    document.getElementById("displayBalance").textContent = user.balance;
+    document.getElementById("displayTotalBet").textContent = user.totalBet || 0;
+    document.getElementById("meTitle").textContent = "\ud83d\udc64 我的账户";
+    loadMyBets();
+  } else {
+    lf.style.display = "block";
+    rf.style.display = "none";
+    ui.style.display = "none";
+    document.getElementById("meTitle").textContent = "\ud83d\udc64 登录账号";
+  }
+}
+
+function refreshBalanceBar() {
+  if (!user) return;
+  document.getElementById("balanceBar").style.display = "flex";
+  document.getElementById("balanceValue").textContent = user.balance;
+  document.getElementById("totalBetValue").textContent = user.totalBet || 0;
+}
+
+function loadMyBets() {
+  if (!user) return;
+  fetch(API + "/user/" + encodeURIComponent(user.username))
+    .then(function(r) { return r.json(); })
+    .then(function(r) {
+      // 投注记录列表
+      var list = document.getElementById("myBetList");
+      if (!r.bets || r.bets.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="es-icon">\ud83d\udcdd</div><div class="es-text">暂无投注记录</div></div>';
+      } else {
+        var html = "";
+        var bets = r.bets.slice().reverse();
+        for (var i = 0; i < bets.length; i++) {
+          var b = bets[i];
+          var statusText = "";
+          var statusClass = "";
+          if (b.status === "won") { statusText = "\u2705 中奖 +" + (b.payout || 0); statusClass = "won"; }
+          else if (b.status === "lost") { statusText = "\u274c 未中"; statusClass = "lost"; }
+          else { statusText = "\u23f3 待开奖"; statusClass = "pending"; }
+          html += '<div class="bet-item"><div class="bet-info-left"><span class="bet-num">' + formatNum(b.number) + '</span><span class="bet-meta">' + b.session + ' \b7 ' + b.time + '</span></div><div class="bet-info-right"><div class="bet-amount">\u00a5' + b.amount + '</div><div class="bet-status ' + statusClass + '">' + statusText + '</div></div></div>';
+        }
+        list.innerHTML = html;
+      }
+      // 报表
+      var s = r.stats || {};
+      var reportHtml =
+        '<div class="report-card orange"><div class="rc-label">\ud83c\udfb0 投注次数</div><div class="rc-value">' + (s.count || 0) + '</div></div>' +
+        '<div class="report-card gold"><div class="rc-label">\ud83d\udcb0 投注金额</div><div class="rc-value">\u00a5' + (s.amount || 0) + '</div></div>' +
+        '<div class="report-card green"><div class="rc-label">\ud83c\udf1f 中奖次数</div><div class="rc-value">' + (s.won || 0) + '</div></div>' +
+        '<div class="report-card ' + ((s.profit || 0) >= 0 ? 'green' : 'red') + '"><div class="rc-label">\ud83d\udcca 总盈亏</div><div class="rc-value">' + ((s.profit || 0) >= 0 ? "+" : "") + (s.profit || 0) + '</div></div>';
+      document.getElementById("myReport").innerHTML = reportHtml;
+    })
+    .catch(function() {
+      document.getElementById("myBetList").innerHTML = '<div class="empty-state"><div class="es-icon">\u26a0\ufe0f</div><div class="es-text" style="color:#ff4757">加载失败</div></div>';
+    });
+}
+
+// ===== 回车键支持 =====
+document.getElementById("loginPassword").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") document.getElementById("btnLogin").click();
+});
+document.getElementById("regPassword2").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") document.getElementById("btnRegister").click();
+});
 
 // ===== 初始化 =====
-document.addEventListener("DOMContentLoaded",()=>{
+document.addEventListener("DOMContentLoaded", function() {
   initNumberGrid();
   initCountdown();
   initNav();
   initDate();
   initAuth();
   loadData();
-  setInterval(loadData,15000);
-  if(user){refreshBalanceBar();showAd();}
-});
-
-// ===== 号码网格 =====
-function initNumberGrid(){
-  const g=document.getElementById("numberGrid");
-  for(let i=0;i<=99;i++){
-    const c=document.createElement("div");
-    c.className="number-cell";c.textContent=i.toString().padStart(2,"0");
-    c.onclick=()=>{document.querySelectorAll(".number-cell").forEach(x=>x.classList.remove("selected"));c.classList.add("selected");selectedNumber=i};
-    g.appendChild(c);
+  setInterval(loadData, 10000);
+  if (user) {
+    refreshBalanceBar();
+    showAd();
   }
-}
-
-// ===== 倒计时 =====
-let countdown=600;
-function initCountdown(){
-  updateCountdown();
-  setInterval(()=>{countdown--;if(countdown<=0)countdown=600;updateCountdown()},1000);
-}
-function updateCountdown(){
-  const t=Math.max(0,countdown),h=Math.floor(t/3600),m=Math.floor(t%3600/60),s=t%60;
-  const apm=h>=12?"PM":"AM",h12=h%12||12;
-  document.getElementById("countdown").textContent=`${h12.toString().padStart(2,"0")}:${m.toString().padStart(2,"0")}:${s.toString().padStart(2,"0")} ${apm}`;
-}
-
-// ===== 导航 =====
-function initNav(){
-  document.querySelectorAll(".nav-item").forEach(item=>{
-    item.onclick=()=>{
-      document.querySelectorAll(".nav-item").forEach(x=>x.classList.remove("active"));
-      item.classList.add("active");
-      const t=item.dataset.tab;
-      if(t==="bet"){if(!user){toast("请先登录");openModal("meModal");return}refreshBetHint();openModal("betModal")}
-      else if(t==="history"){loadHistory();openModal("historyModal")}
-      else if(t==="me"){showMePage();openModal("meModal")}
-    };
-  });
-}
-
-// ===== 日期 =====
-function initDate(){
-  const n=new Date(),d=n.getDate().toString().padStart(2,"0"),m=(n.getMonth()+1).toString().padStart(2,"0");
-  document.getElementById("currentDate").textContent=`${d}/${m}/${n.getFullYear()}`;
-}
-
-// ===== 数据加载 =====
-async function loadData(){
-  try{
-    const r=await fetch(API+"/data").then(x=>x.json());
-    if(!r.success)return;
-    currentNumber=r.currentNumber;
-    document.getElementById("currentNumber").textContent=(r.currentNumber??"--").toString().padStart(2,"0");
-    document.getElementById("setValue").textContent=r.set||"--";
-    document.getElementById("valValue").textContent=r.val||"--";
-    const s1=r.sessions?.["12:00 PM"],s2=r.sessions?.["04:30 PM"];
-    document.getElementById("s1Num").textContent=(s1?.number??"--").toString().padStart(2,"0");
-    document.getElementById("s2Num").textContent=(s2?.number??"--").toString().padStart(2,"0");
-    document.getElementById("s1Status").textContent=s1?.status==="closed"?"✅ 已开奖":"⏳ 等待中";
-    document.getElementById("s2Status").textContent=s2?.status==="closed"?"✅ 已开奖":"⏳ 等待中";
-    if(r.ads?.marquee?.enabled){document.getElementById("marquee").classList.add("show");document.getElementById("marqueeText").textContent=r.ads.marquee.content||""}
-  }catch(e){console.warn("loadData error",e)}
-}
-
-// ===== 广告 =====
-function showAd(){
-  fetch(API+"/data").then(x=>x.json()).then(d=>{
-    if(d.ads?.popup?.enabled){document.getElementById("adTitle").textContent=d.ads.popup.title||"";document.getElementById("adContent").textContent=d.ads.popup.content||"";document.getElementById("adOverlay").classList.add("show")}
-  }).catch(()=>{});
-}
-function closeAd(){document.getElementById("adOverlay").classList.remove("show")}
-
-// ===== 开奖横幅 =====
-function showResult(num,session){
-  const b=document.getElementById("resultBanner"),t=document.getElementById("resultText");
-  t.textContent=`🎉 ${session} 开奖号码: ${num.toString().padStart(2,"0")}`;
-  b.style.display="block";b.classList.remove("bannerIn");void b.offsetWidth;b.classList.add("bannerIn");
-  setTimeout(()=>b.style.display="none",5000);
-  const isPM=session==="04:30 PM",el=document.getElementById(isPM?"s2Num":"s1Num");
-  if(el){el.textContent=num.toString().padStart(2,"0");el.classList.remove("pop");void el.offsetWidth;el.classList.add("pop")}
-  toast(`🎉 开奖: ${num.toString().padStart(2,"0")}`,"ok");
-}
-
-// ===== 投注 =====
-document.getElementById("confirmBet").onclick=async()=>{
-  const amt=parseFloat(document.getElementById("betAmount").value),s=document.getElementById("betSession").value;
-  if(selectedNumber===null&&selectedNumber!==0){toast("请选择号码");return}
-  if(!amt||amt<=0){toast("请输入金额");return}
-  if(!user){toast("请先登录");openModal("meModal");return}
-  if(amt>user.balance){toast("余额不足");return}
-  try{
-    const r=await fetch(API+"/bet",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:user.username,number:selectedNumber,amount:amt,session:s,timestamp:new Date().toISOString()})}).then(x=>x.json());
-    if(r.success){toast(`✅ 投注成功！号码:${selectedNumber} 金额:${amt}`,"ok");user.balance=r.balance;user.totalBet=(user.totalBet||0)+amt;localStorage.setItem("user",JSON.stringify(user));refreshBalanceBar();refreshBetHint();closeModal("betModal");document.getElementById("betAmount").value="";selectedNumber=null;document.querySelectorAll(".number-cell").forEach(c=>c.classList.remove("selected"))}
-    else toast(r.message||"投注失败","err");
-  }catch(e){toast("网络错误","err")}
-};
-
-// ===== 历史 =====
-async function loadHistory(){
-  try{
-    const r=await fetch(API+"/history").then(x=>x.json());
-    const list=document.getElementById("historyList");
-    if(!r.history?.length){list.innerHTML='<div style="text-align:center;color:#666;padding:20px">暂无记录</div>';return}
-    list.innerHTML=r.history.map(h=>`<div class="history-item"><div><div class="history-date">${h.date}</div><div class="history-session">${h.session}</div></div><div class="history-number">${h.number.toString().padStart(2,"0")}</div></div>`).join("");
-  }catch(e){document.getElementById("historyList").innerHTML='<div style="color:#ff4757">加载失败</div>'}
-}
-
-// ===== 认证 =====
-function initAuth(){
-  document.getElementById("btnLogin").onclick=async()=>{
-    const u=document.getElementById("loginUsername").value.trim(),p=document.getElementById("loginPassword").value;
-    if(!u||!p){toast("请输入账号和密码");return}
-    try{
-      const r=await fetch(API+"/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p})}).then(x=>x.json());
-      if(r.success){user={username:r.username,balance:r.balance,totalBet:r.totalBet};localStorage.setItem("user",JSON.stringify(user));toast("✅ 登录成功","ok");refreshBalanceBar();showMePage();showAd()}
-      else toast(r.message||"登录失败","err");
-    }catch(e){toast("网络错误","err")}
-  };
-  document.getElementById("btnRegister").onclick=async()=>{
-    const u=document.getElementById("regUsername").value.trim(),p1=document.getElementById("regPassword").value,p2=document.getElementById("regPassword2").value;
-    if(!u||!p1){toast("请输入用户名和密码");return}
-    if(p1!==p2){toast("两次密码不一致");return}
-    try{
-      const r=await fetch(API+"/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:u,password:p1})}).then(x=>x.json());
-      if(r.success){toast(`✅ 注册成功！赠送 ¥${r.balance}`,"ok");user={username:u,balance:r.balance,totalBet:0};localStorage.setItem("user",JSON.stringify(user));refreshBalanceBar();showMePage()}
-      else toast(r.message||"注册失败","err");
-    }catch(e){toast("网络错误","err")}
-  };
-  document.getElementById("btnLogout").onclick=()=>{user=null;localStorage.removeItem("user");document.getElementById("balanceBar").style.display="none";toast("已退出");showMePage()};
-}
-
-function switchAuth(tab){
-  document.getElementById("loginForm").style.display=tab==="login"?"block":"none";
-  document.getElementById("registerForm").style.display=tab==="register"?"block":"none";
-  document.getElementById("tabLogin").classList.toggle("active",tab==="login");
-  document.getElementById("tabReg").classList.toggle("active",tab==="register");
-  document.getElementById("tabLogin2").classList.toggle("active",tab==="login");
-  document.getElementById("tabReg2").classList.toggle("active",tab==="register");
-}
-
-function showMePage(){
-  const lf=document.getElementById("loginForm"),rf=document.getElementById("registerForm"),ui=document.getElementById("userInfo");
-  if(user){lf.style.display="none";rf.style.display="none";ui.style.display="block";document.getElementById("displayUsername").textContent=user.username;document.getElementById("displayBalance").textContent=user.balance;document.getElementById("displayTotalBet").textContent=user.totalBet||0;document.getElementById("meTitle").textContent="我的账户"}
-  else{lf.style.display="block";rf.style.display="none";ui.style.display="none";document.getElementById("meTitle").textContent="登录账号"}
-}
-
-function refreshBalanceBar(){
-  if(!user)return;
-  document.getElementById("balanceBar").style.display="flex";
-  document.getElementById("balanceValue").textContent=user.balance;
-  document.getElementById("totalBetValue").textContent=user.totalBet||0;
-}
-function refreshBetHint(){
-  const el=document.getElementById("betBalanceHint");
-  if(el&&user)el.textContent=user.balance;
-}
-
-// ===== 模拟开奖检测（前端轮询时检测变化）=====
-let lastNumber=null;
-setInterval(async()=>{
-  try{
-    const r=await fetch(API+"/data").then(x=>x.json());
-    if(r.currentNumber!==null&&r.currentNumber!=="--"&&r.currentNumber!==lastNumber){
-      lastNumber=r.currentNumber;
-      const now=new Date(),h=now.getHours();
-      const sess=h<13?"12:00 PM":"04:30 PM";
-      showResult(r.currentNumber,sess);
-    }
-  }catch(e){}
-},5000);
+});
 </script>
 </body>
 </html>
