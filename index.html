@@ -286,7 +286,7 @@ body {
 .btn-confirm:active { transform: scale(0.97); }
 .btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ===== 号码网格 ===== */
+/* ===== 号码网格（多选）===== */
 .number-grid {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
@@ -310,6 +310,7 @@ body {
   transition: all 0.2s;
   border: 1px solid transparent;
   color: #ccc;
+  user-select: none;
 }
 .number-cell:hover { background: rgba(255,255,255,0.08); color: #fff; }
 .number-cell.selected {
@@ -321,6 +322,32 @@ body {
 }
 .number-grid::-webkit-scrollbar { width: 4px; }
 .number-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+
+/* 已选号码标签 */
+.selected-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  min-height: 28px;
+}
+.selected-tag {
+  background: rgba(255,107,53,0.15);
+  color: #ff6b35;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.selected-tag span {
+  cursor: pointer;
+  color: #ff6b35;
+  opacity: 0.7;
+}
+.selected-tag span:hover { opacity: 1; }
 
 /* ===== 登录/注册 ===== */
 .auth-tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
@@ -346,16 +373,73 @@ body {
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
 }
 
-/* ===== 我的账户 ===== */
-.account-info { padding: 20px 4px; }
-.account-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.account-row label { color: #888; font-size: 14px; }
-.account-row span { font-size: 15px; font-weight: 600; color: #fff; }
-.account-row span.hl { color: #ff6b35; font-size: 17px; }
+/* ===== 我的账户页面 ===== */
+.page-me {
+  display: none;
+  padding: 0 0 90px 0;
+}
+.page-me.show { display: block; }
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background: rgba(255,255,255,0.03);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.page-header h2 { font-size: 18px; color: #fff; }
+.page-header .back-btn {
+  background: rgba(255,255,255,0.06);
+  color: #ccc;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+.page-header .back-btn:hover { background: rgba(255,255,255,0.1); }
+
+.account-info { padding: 20px; }
+.account-card {
+  background: linear-gradient(145deg, #1e1e3a, #16162b);
+  border-radius: 18px;
+  padding: 24px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255,255,255,0.06);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.account-card .ac-name {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ff6b35;
+  margin-bottom: 16px;
+}
+.ac-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+.ac-row:last-child { border-bottom: none; }
+.ac-row label { color: #888; font-size: 14px; }
+.ac-row span { font-size: 16px; font-weight: 700; color: #fff; }
+.ac-row span.hl { color: #ff6b35; font-size: 18px; }
 
 /* ===== 投注记录列表 ===== */
-.bet-list { max-height: 350px; overflow-y: auto; padding: 0 4px; }
-.bet-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.section-title {
+  font-size: 15px;
+  color: #ccc;
+  font-weight: 600;
+  padding: 0 20px;
+  margin: 8px 0 12px;
+}
+.bet-list { padding: 0 20px; }
+.bet-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 12px; border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(255,255,255,0.02); border-radius: 12px; margin-bottom: 8px; }
 .bet-item:last-child { border-bottom: none; }
 .bet-info-left { display: flex; flex-direction: column; gap: 3px; }
 .bet-num { font-size: 20px; font-weight: 800; color: #ff6b35; }
@@ -368,7 +452,7 @@ body {
 .bet-status.pending { color: #f7c948; }
 
 /* ===== 报表卡片 ===== */
-.report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
+.report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 20px; margin-top: 16px; }
 .report-card { background: rgba(255,255,255,0.04); border-radius: 12px; padding: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
 .report-card .rc-label { font-size: 11px; color: #777; margin-bottom: 6px; }
 .report-card .rc-value { font-size: 20px; font-weight: 800; }
@@ -377,6 +461,22 @@ body {
 .report-card.gold .rc-value { color: #f7c948; }
 .report-card.red .rc-value { color: #ff4757; }
 .report-card.blue .rc-value { color: #1e90ff; }
+
+.logout-btn {
+  display: block;
+  width: calc(100% - 40px);
+  margin: 20px auto 0;
+  padding: 15px;
+  background: rgba(255,71,87,0.15);
+  color: #ff4757;
+  border: 1px solid rgba(255,71,87,0.3);
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+.logout-btn:active { transform: scale(0.98); }
 
 /* ===== Toast ===== */
 .toast {
@@ -422,7 +522,9 @@ body {
 </head>
 <body>
 
-<!-- ===== 顶部 ===== -->
+<!-- ===== 首页内容（默认显示）===== -->
+<div id="homePage">
+<!-- 顶部 -->
 <div class="header">
   <div class="header-left">
     <div class="main-number" id="currentNumber">--</div>
@@ -433,19 +535,19 @@ body {
   </div>
 </div>
 
-<!-- ===== 投注信息 ===== -->
+<!-- 投注信息 -->
 <div class="bet-info">
   <div class="bet-row"><span class="bet-label">SET:</span><span class="bet-value set-value" id="setValue">--</span></div>
   <div class="bet-row"><span class="bet-label">VAL:</span><span class="bet-value val-value" id="valValue">--</span></div>
 </div>
 
-<!-- ===== 日期 ===== -->
+<!-- 日期 -->
 <div class="date-section">
   <span>&#128197;</span>
   <span id="currentDate">--</span>
 </div>
 
-<!-- ===== 场次卡片 ===== -->
+<!-- 场次卡片 -->
 <div class="session-grid">
   <div class="session-card" id="card1">
     <div class="session-time">12:00 PM</div>
@@ -459,16 +561,66 @@ body {
   </div>
 </div>
 
-<!-- ===== 开奖横幅 ===== -->
+<!-- 开奖横幅 -->
 <div class="result-banner" id="resultBanner"><span id="resultText"></span></div>
 
-<!-- ===== 跑马灯 ===== -->
+<!-- 跑马灯 -->
 <div class="marquee" id="marquee"><span id="marqueeText"></span></div>
 
-<!-- ===== 余额条 ===== -->
+<!-- 余额条 -->
 <div class="balance-bar" id="balanceBar">
   <span>余额: &#165;<b id="balanceValue">0</b></span>
   <span>总投注: &#165;<b id="totalBetValue">0</b></span>
+</div>
+</div><!-- end homePage -->
+
+<!-- ===== 我的页面（独立页面，默认隐藏）===== -->
+<div class="page-me" id="mePage">
+  <div class="page-header">
+    <button class="back-btn" onclick="hideMePage()">&#8592; 返回</button>
+    <h2>&#128100; 我的账户</h2>
+    <div style="width:60px"></div>
+  </div>
+
+  <!-- 未登录：显示登录/注册 -->
+  <div id="meAuthForm">
+    <div class="account-info">
+      <div class="account-card">
+        <div class="auth-tabs">
+          <div class="auth-tab active" id="tabLogin" onclick="switchAuth('login')">登录</div>
+          <div class="auth-tab" id="tabReg" onclick="switchAuth('register')">注册</div>
+        </div>
+        <div class="modal-row"><label>用户名</label><input type="text" id="loginUsername" placeholder="请输入用户名"></div>
+        <div class="modal-row"><label>密码</label><input type="password" id="loginPassword" placeholder="请输入密码"></div>
+        <button class="btn-confirm" style="width:100%;margin-top:8px" id="btnLogin">登录</button>
+      </div>
+      <div class="account-card" id="regCard" style="display:none">
+        <div class="auth-tabs">
+          <div class="auth-tab" id="tabLogin2" onclick="switchAuth('login')">登录</div>
+          <div class="auth-tab active" id="tabReg2" onclick="switchAuth('register')">注册</div>
+        </div>
+        <div class="modal-row"><label>用户名</label><input type="text" id="regUsername" placeholder="请输入用户名"></div>
+        <div class="modal-row"><label>密码（至少4位）</label><input type="password" id="regPassword" placeholder="请输入密码"></div>
+        <div class="modal-row"><label>确认密码</label><input type="password" id="regPassword2" placeholder="再次输入密码"></div>
+        <button class="btn-confirm" style="width:100%;margin-top:8px" id="btnRegister">注册</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 已登录：显示账户信息 + 投注记录 + 报表 -->
+  <div id="meUserInfo" style="display:none">
+    <div class="account-info">
+      <div class="account-card">
+        <div class="ac-name" id="displayUsername"></div>
+        <div class="ac-row"><label>余额</label><span class="hl">&#165; <b id="displayBalance">0</b></span></div>
+        <div class="ac-row"><label>总投注</label><span>&#165; <b id="displayTotalBet">0</b></span></div>
+      </div>
+    </div>
+    <div class="section-title">&#127919; 投注记录</div>
+    <div class="bet-list" id="myBetList"></div>
+    <div class="report-grid" id="myReport"></div>
+    <button class="logout-btn" id="btnLogout">退出登录</button>
+  </div>
 </div>
 
 <!-- ===== 广告弹窗 ===== -->
@@ -491,15 +643,16 @@ body {
 <!-- ===== 投注弹窗 ===== -->
 <div class="modal-overlay" id="betModal">
   <div class="modal-content">
-    <div class="modal-header"><h3>&#127919; 投注</h3><span class="modal-close" onclick="closeModal('betModal')">&#10005;</span></div>
+    <div class="modal-header"><h3>&#127919; 投注（可多选号码）</h3><span class="modal-close" onclick="closeModal('betModal')">&#10005;</span></div>
     <div class="modal-body">
       <div class="modal-row">
-        <label>选择号码（0-99）</label>
+        <label>选择号码（点击多个可同时投注）</label>
         <div class="number-grid" id="numberGrid"></div>
+        <div class="selected-tags" id="selectedTags"></div>
       </div>
       <div class="modal-row">
-        <label>投注金额（¥）</label>
-        <input type="number" id="betAmount" placeholder="请输入金额" min="1">
+        <label>每注金额（¥）</label>
+        <input type="number" id="betAmount" placeholder="请输入每注金额" min="1">
       </div>
       <div class="modal-row">
         <label>选择场次</label>
@@ -509,7 +662,7 @@ body {
         </select>
       </div>
       <div class="modal-row" style="text-align:right;color:#ff6b35;font-size:13px;margin-bottom:0">
-        余额: &#165;<b id="betBalanceHint">0</b>
+        已选 <b id="selectedCount">0</b> 个号码 | 总投注: &#165;<b id="betTotal">0</b> | 余额: &#165;<b id="betBalanceHint">0</b>
       </div>
     </div>
     <div class="modal-footer">
@@ -529,62 +682,12 @@ body {
   </div>
 </div>
 
-<!-- ===== 我的弹窗 ===== -->
-<div class="modal-overlay" id="meModal">
-  <div class="modal-content">
-    <div class="modal-header"><h3 id="meTitle">&#128100; 我的账户</h3><span class="modal-close" onclick="closeModal('meModal')">&#10005;</span></div>
-    <div class="modal-body">
-      <!-- 登录表单 -->
-      <div id="loginForm">
-        <div class="auth-tabs">
-          <div class="auth-tab active" id="tabLogin" onclick="switchAuth('login')">登录</div>
-          <div class="auth-tab" id="tabReg" onclick="switchAuth('register')">注册</div>
-        </div>
-        <div class="modal-row"><label>用户名</label><input type="text" id="loginUsername" placeholder="请输入用户名"></div>
-        <div class="modal-row"><label>密码</label><input type="password" id="loginPassword" placeholder="请输入密码"></div>
-        <div class="modal-footer" style="padding:0">
-          <button class="btn-confirm" style="width:100%" id="btnLogin">登录</button>
-        </div>
-      </div>
-      <!-- 注册表单 -->
-      <div id="registerForm" style="display:none">
-        <div class="auth-tabs">
-          <div class="auth-tab" id="tabLogin2" onclick="switchAuth('login')">登录</div>
-          <div class="auth-tab active" id="tabReg2" onclick="switchAuth('register')">注册</div>
-        </div>
-        <div class="modal-row"><label>用户名</label><input type="text" id="regUsername" placeholder="请输入用户名"></div>
-        <div class="modal-row"><label>密码（至少4位）</label><input type="password" id="regPassword" placeholder="请输入密码"></div>
-        <div class="modal-row"><label>确认密码</label><input type="password" id="regPassword2" placeholder="再次输入密码"></div>
-        <div class="modal-footer" style="padding:0">
-          <button class="btn-confirm" style="width:100%" id="btnRegister">注册</button>
-        </div>
-      </div>
-      <!-- 已登录信息 -->
-      <div id="userInfo" style="display:none">
-        <div class="account-info">
-          <div class="account-row"><label>用户名</label><span id="displayUsername"></span></div>
-          <div class="account-row"><label>余额</label><span class="hl">&#165; <b id="displayBalance">0</b></span></div>
-          <div class="account-row"><label>总投注</label><span>&#165; <b id="displayTotalBet">0</b></span></div>
-        </div>
-        <div style="margin-top:8px">
-          <h4 style="color:#ccc;font-size:14px;margin-bottom:8px">&#127919; 投注记录</h4>
-          <div class="bet-list" id="myBetList"></div>
-        </div>
-        <div class="report-grid" id="myReport"></div>
-        <div class="modal-footer" style="padding:0;margin-top:20px">
-          <button class="btn-cancel" style="width:100%;background:#ff4757;color:#fff" id="btnLogout">退出登录</button>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
-// ===== 全局配置（⚠️ 改成你自己的 PythonAnywhere 用户名）=====
+// ===== 全局配置 =====
 var API = "https://miantong.pythonanywhere.com/api";
 var user = JSON.parse(localStorage.getItem("user") || "null");
 var lastNumber = null;
-var selectedNumber = null;
+var selectedNumbers = [];  // 多选号码数组
 var countdown = 600;
 
 // ===== Toast 通知 =====
@@ -611,22 +714,67 @@ function formatNum(n) {
   return (num < 10 ? "0" + num : "" + num);
 }
 
-// ===== 号码网格初始化 =====
+// ===== 号码网格初始化（多选）======
 function initNumberGrid() {
   var g = document.getElementById("numberGrid");
+  g.innerHTML = "";
   for (var i = 0; i <= 99; i++) {
     (function(num) {
       var c = document.createElement("div");
       c.className = "number-cell";
       c.textContent = formatNum(num);
       c.onclick = function() {
-        var all = document.querySelectorAll(".number-cell");
-        for (var j = 0; j < all.length; j++) all[j].classList.remove("selected");
-        c.classList.add("selected");
-        selectedNumber = num;
+        var idx = selectedNumbers.indexOf(num);
+        if (idx >= 0) {
+          // 已选 → 取消
+          selectedNumbers.splice(idx, 1);
+          c.classList.remove("selected");
+        } else {
+          // 未选 → 添加
+          selectedNumbers.push(num);
+          c.classList.add("selected");
+        }
+        updateSelectedTags();
+        updateBetTotal();
       };
     })(i);
   }
+}
+
+// 更新已选号码标签
+function updateSelectedTags() {
+  var box = document.getElementById("selectedTags");
+  var html = "";
+  for (var i = 0; i < selectedNumbers.length; i++) {
+    html += '<div class="selected-tag">' + formatNum(selectedNumbers[i]) + '<span onclick="removeNumber(' + selectedNumbers[i] + ')">&times;</span></div>';
+  }
+  box.innerHTML = html;
+  document.getElementById("selectedCount").textContent = selectedNumbers.length;
+}
+
+// 移除单个号码
+function removeNumber(num) {
+  var idx = selectedNumbers.indexOf(num);
+  if (idx >= 0) {
+    selectedNumbers.splice(idx, 1);
+    // 同步取消网格高亮
+    var cells = document.querySelectorAll(".number-cell");
+    for (var i = 0; i < cells.length; i++) {
+      if (parseInt(cells[i].textContent) === num) {
+        cells[i].classList.remove("selected");
+        break;
+      }
+    }
+    updateSelectedTags();
+    updateBetTotal();
+  }
+}
+
+// 更新总投注额
+function updateBetTotal() {
+  var amt = parseFloat(document.getElementById("betAmount").value) || 0;
+  var total = amt * selectedNumbers.length;
+  document.getElementById("betTotal").textContent = total;
 }
 
 // ===== 倒计时 =====
@@ -667,7 +815,7 @@ function initNav() {
       this.classList.add("active");
       var t = this.getAttribute("data-tab");
       if (t === "bet") {
-        if (!user) { toast("请先登录", "err"); openModal("meModal"); return; }
+        if (!user) { toast("请先登录", "err"); showMePage(); return; }
         refreshBetHint();
         openModal("betModal");
       } else if (t === "history") {
@@ -675,13 +823,14 @@ function initNav() {
         openModal("historyModal");
       } else if (t === "me") {
         showMePage();
-        openModal("meModal");
+      } else if (t === "home") {
+        hideMePage();
       }
     };
   }
 }
 
-// ===== 核心：数据加载（开奖号码显示）=====
+// ===== 核心：数据加载（3秒实时刷新）=====
 function loadData() {
   fetch(API + "/data")
     .then(function(r) { return r.json(); })
@@ -761,57 +910,93 @@ function showAd() {
 }
 function closeAd() { document.getElementById("adOverlay").classList.remove("show"); }
 
-// ===== 投注功能（核心）=====
+// ===== 投注功能（多选号码）=====
 function refreshBetHint() {
   var el = document.getElementById("betBalanceHint");
   if (el && user) el.textContent = user.balance;
 }
 
+// 金额输入时实时更新总投注
+document.getElementById("betAmount").addEventListener("input", updateBetTotal);
+
 document.getElementById("confirmBet").onclick = function() {
   var amt = parseFloat(document.getElementById("betAmount").value);
   var s = document.getElementById("betSession").value;
 
-  if (selectedNumber === null) { toast("请选择号码", "err"); return; }
+  if (selectedNumbers.length === 0) { toast("请至少选择1个号码", "err"); return; }
   if (!amt || amt <= 0) { toast("请输入有效金额", "err"); return; }
-  if (!user) { toast("请先登录", "err"); openModal("meModal"); return; }
-  if (amt > user.balance) { toast("余额不足", "err"); return; }
+  if (!user) { toast("请先登录", "err"); showMePage(); return; }
+
+  var total = amt * selectedNumbers.length;
+  if (total > user.balance) { toast("余额不足（需 ¥" + total + "）", "err"); return; }
 
   var btn = document.getElementById("confirmBet");
   btn.disabled = true;
   btn.textContent = "投注中...";
 
-  fetch(API + "/bet", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      username: user.username,
-      number: selectedNumber,
-      amount: amt,
-      session: s,
-      timestamp: new Date().toISOString()
+  // 对每个选中的号码分别投注
+  var promises = [];
+  for (var i = 0; i < selectedNumbers.length; i++) {
+    promises.push(
+      fetch(API + "/bet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: user.username,
+          number: selectedNumbers[i],
+          amount: amt,
+          session: s,
+          timestamp: new Date().toISOString()
+        })
+      }).then(function(r) { return r.json(); })
+    );
+  }
+
+  Promise.all(promises)
+    .then(function(results) {
+      btn.disabled = false;
+      btn.textContent = "确认投注";
+
+      var successCount = 0;
+      for (var i = 0; i < results.length; i++) {
+        if (results[i].success) successCount++;
+      }
+
+      if (successCount > 0) {
+        // 用最后一个成功结果更新余额
+        var lastOk = null;
+        for (var j = results.length - 1; j >= 0; j--) {
+          if (results[j].success) { lastOk = results[j]; break; }
+        }
+        if (lastOk) {
+          user.balance = lastOk.balance;
+          user.totalBet = (user.totalBet || 0) + total;
+          localStorage.setItem("user", JSON.stringify(user));
+        }
+        toast("\u2705 投注成功！" + successCount + "注 共¥" + total, "ok");
+        refreshBalanceBar();
+        refreshBetHint();
+
+        // 清空选择
+        selectedNumbers = [];
+        updateSelectedTags();
+        updateBetTotal();
+        document.getElementById("betAmount").value = "";
+        var cells = document.querySelectorAll(".number-cell");
+        for (var k = 0; k < cells.length; k++) cells[k].classList.remove("selected");
+
+        closeModal("betModal");
+
+        // 投注后立即刷新数据
+        loadData();
+        if (document.getElementById("mePage").classList.contains("show")) {
+          loadMyBets();
+        }
+      } else {
+        toast((results[0] && results[0].message) || "投注失败", "err");
+      }
     })
-  })
-  .then(function(r) { return r.json(); })
-  .then(function(r) {
-    btn.disabled = false;
-    btn.textContent = "确认投注";
-    if (r.success) {
-      toast("\u2705 投注成功！号码:" + selectedNumber + " 金额:\u00a5" + amt, "ok");
-      user.balance = r.balance;
-      user.totalBet = (user.totalBet || 0) + amt;
-      localStorage.setItem("user", JSON.stringify(user));
-      refreshBalanceBar();
-      refreshBetHint();
-      closeModal("betModal");
-      document.getElementById("betAmount").value = "";
-      selectedNumber = null;
-      var cells = document.querySelectorAll(".number-cell");
-      for (var i = 0; i < cells.length; i++) cells[i].classList.remove("selected");
-    } else {
-      toast((r.message || "投注失败"), "err");
-    }
-  })
-  .catch(function() { btn.disabled = false; btn.textContent = "确认投注"; toast("网络错误", "err"); });
+    .catch(function() { btn.disabled = false; btn.textContent = "确认投注"; toast("网络错误", "err"); });
 };
 
 // ===== 历史记录 =====
@@ -860,6 +1045,7 @@ function initAuth() {
         refreshBalanceBar();
         showMePage();
         showAd();
+        loadData(); // 立即刷新
       } else { toast((r.message || "登录失败"), "err"); }
     })
     .catch(function() { btn.disabled = false; btn.textContent = "登录"; toast("网络错误", "err"); });
@@ -889,6 +1075,7 @@ function initAuth() {
         localStorage.setItem("user", JSON.stringify(user));
         refreshBalanceBar();
         showMePage();
+        loadData(); // 立即刷新
       } else { toast((r.message || "注册失败"), "err"); }
     })
     .catch(function() { btn.disabled = false; btn.textContent = "注册"; toast("网络错误", "err"); });
@@ -905,36 +1092,54 @@ function initAuth() {
 }
 
 function switchAuth(tab) {
-  document.getElementById("loginForm").style.display = tab === "login" ? "block" : "none";
-  document.getElementById("registerForm").style.display = tab === "register" ? "block" : "none";
+  document.getElementById("meAuthForm").style.display = "block";
+  document.getElementById("regCard").style.display = tab === "register" ? "block" : "none";
   document.getElementById("tabLogin").classList.toggle("active", tab === "login");
   document.getElementById("tabReg").classList.toggle("active", tab === "register");
   document.getElementById("tabLogin2").classList.toggle("active", tab === "login");
   document.getElementById("tabReg2").classList.toggle("active", tab === "register");
 }
 
-// ===== 我的页面（含投注记录 + 报表）=====
+// ===== 我的页面（跳转，不是弹窗）=====
 function showMePage() {
-  var lf = document.getElementById("loginForm");
-  var rf = document.getElementById("registerForm");
-  var ui = document.getElementById("userInfo");
+  // 隐藏首页，显示我的页面
+  document.getElementById("homePage").style.display = "none";
+  document.getElementById("mePage").classList.add("show");
+
+  var authForm = document.getElementById("meAuthForm");
+  var userInfo = document.getElementById("meUserInfo");
+
   if (user) {
-    lf.style.display = "none";
-    rf.style.display = "none";
-    ui.style.display = "block";
+    authForm.style.display = "none";
+    userInfo.style.display = "block";
     document.getElementById("displayUsername").textContent = user.username;
     document.getElementById("displayBalance").textContent = user.balance;
     document.getElementById("displayTotalBet").textContent = user.totalBet || 0;
-    document.getElementById("meTitle").textContent = "\ud83d\udc64 我的账户";
     loadMyBets();
   } else {
-    lf.style.display = "block";
-    rf.style.display = "none";
-    ui.style.display = "none";
-    document.getElementById("meTitle").textContent = "\ud83d\udc64 登录账号";
+    authForm.style.display = "block";
+    userInfo.style.display = "none";
+    // 默认显示登录
+    switchAuth("login");
   }
 }
 
+function hideMePage() {
+  document.getElementById("mePage").classList.remove("show");
+  document.getElementById("homePage").style.display = "block";
+  // 切回首页导航高亮
+  var items = document.querySelectorAll(".nav-item");
+  for (var i = 0; i < items.length; i++) {
+    items[i].classList.remove("active");
+    if (items[i].getAttribute("data-tab") === "home") {
+      items[i].classList.add("active");
+    }
+  }
+  // 刷新首页数据
+  loadData();
+}
+
+// ===== 余额条 =====
 function refreshBalanceBar() {
   if (!user) return;
   document.getElementById("balanceBar").style.display = "flex";
@@ -942,6 +1147,7 @@ function refreshBalanceBar() {
   document.getElementById("totalBetValue").textContent = user.totalBet || 0;
 }
 
+// ===== 我的页面：投注记录 + 报表 =====
 function loadMyBets() {
   if (!user) return;
   fetch(API + "/user/" + encodeURIComponent(user.username))
@@ -973,6 +1179,14 @@ function loadMyBets() {
         '<div class="report-card green"><div class="rc-label">\ud83c\udf1f 中奖次数</div><div class="rc-value">' + (s.won || 0) + '</div></div>' +
         '<div class="report-card ' + ((s.profit || 0) >= 0 ? 'green' : 'red') + '"><div class="rc-label">\ud83d\udcca 总盈亏</div><div class="rc-value">' + ((s.profit || 0) >= 0 ? "+" : "") + (s.profit || 0) + '</div></div>';
       document.getElementById("myReport").innerHTML = reportHtml;
+
+      // 同步更新首页余额
+      if (r.balance !== undefined) {
+        user.balance = r.balance;
+        user.totalBet = r.totalBet || user.totalBet;
+        localStorage.setItem("user", JSON.stringify(user));
+        refreshBalanceBar();
+      }
     })
     .catch(function() {
       document.getElementById("myBetList").innerHTML = '<div class="empty-state"><div class="es-icon">\u26a0\ufe0f</div><div class="es-text" style="color:#ff4757">加载失败</div></div>';
@@ -995,7 +1209,8 @@ document.addEventListener("DOMContentLoaded", function() {
   initDate();
   initAuth();
   loadData();
-  setInterval(loadData, 10000);
+  // 3秒实时刷新（之前是10秒）
+  setInterval(loadData, 3000);
   if (user) {
     refreshBalanceBar();
     showAd();
