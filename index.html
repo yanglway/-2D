@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>财神2D</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+* { margin:0; padding:0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
@@ -290,7 +290,7 @@ body {
 .btn-confirm:active { transform: scale(0.97); }
 .btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
 
-/* ===== 号码网格（核心）===== */
+/* ===== 号码网格 ===== */
 .number-grid {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
@@ -542,7 +542,7 @@ body {
   </div>
 </div>
 
-<!-- ===== 我的页面（独立页面，非弹窗）===== -->
+<!-- ===== 我的页面 ===== -->
 <div class="me-page" id="mePage">
   <div class="me-header">
     <span class="back-btn" onclick="hideMe()">&#8592;</span>
@@ -715,8 +715,10 @@ body {
 
 <script>
 // ===== 全局配置 =====
-var API = "https://miantong.pythonanywhere.com/api"; // ⚠️ 确认用户名
-var user = JSON.parse(localStorage.getItem("user") || "null");
+var API = "https://miantong.pythonanywhere.com/api";
+
+// ✅ 登录态只看 username，余额永远从后端拉
+var username = localStorage.getItem("username") || null;
 var lastNumber = null;
 var selectedNumbers = [];
 
@@ -740,10 +742,28 @@ function openModal(id) { document.getElementById(id).classList.add("show"); }
 function closeModal(id) { document.getElementById(id).classList.remove("show"); }
 function closeAd() { document.getElementById("adOverlay").classList.remove("show"); }
 
-// ===== 号码多选（核心）=====
+// ===== ✅ 核心：从后端拉余额并刷新页面 =====
+function refreshBalance(cb) {
+  if (!username) return;
+  fetch(API + "/user/" + encodeURIComponent(username))
+    .then(function(r) { return r.json(); })
+    .then(function(r) {
+      if (!r.success) return;
+      // 更新余额条
+      document.getElementById("balanceValue").textContent = r.balance;
+      document.getElementById("totalBetValue").textContent = r.totalBet || 0;
+      // 投注弹窗里的余额提示也同步
+      var hint = document.getElementById("betBalanceHint");
+      if (hint) hint.textContent = r.balance;
+      if (cb) cb(r);
+    })
+    .catch(function() { /* 网络错误静默处理 */ });
+}
+
+// ===== 号码多选 =====
 function toggleNum(num, cell) {
-  if (!user) { toast("请先登录", "err"); showMe(); return; }
-  if (selectedNumbers.includes(num)) {
+  if (!username) { toast("请先登录", "err"); showMe(); return; }
+  if (selectedNumbers.indexOf(num) >= 0) {
     selectedNumbers = selectedNumbers.filter(function(n) { return n !== num; });
     cell.classList.remove("selected");
   } else {
@@ -764,7 +784,6 @@ function renderSelectedTags() {
 
 function removeNum(num) {
   selectedNumbers = selectedNumbers.filter(function(n) { return n !== num; });
-  // 同步取消格子的高亮
   var cells = document.querySelectorAll(".number-cell");
   for (var i = 0; i < cells.length; i++) {
     if (cells[i].textContent === num) {
@@ -781,18 +800,23 @@ function updateBetSummary() {
   var total = amt * selectedNumbers.length;
   document.getElementById("selectedCount").textContent = selectedNumbers.length;
   document.getElementById("totalCost").textContent = total;
-  document.getElementById("betBalanceHint").textContent = user ? user.balance : 0;
+  // 余额提示由 refreshBalance 维护，这里只显示当前值
+  var hint = document.getElementById("betBalanceHint");
+  if (hint && hint.textContent === "0") {
+    // 首次打开弹窗时拉一次
+    refreshBalance();
+  }
 }
 
 // ===== 投注弹窗 =====
 function showBetModal() {
-  if (!user) { toast("请先登录", "err"); showMe(); return; }
+  if (!username) { toast("请先登录", "err"); showMe(); return; }
   selectedNumbers = [];
-  // 清除之前的高亮
   var cells = document.querySelectorAll(".number-cell");
   for (var i = 0; i < cells.length; i++) { cells[i].classList.remove("selected"); }
   renderSelectedTags();
   updateBetSummary();
+  refreshBalance(); // ✅ 打开时拉一次最新余额
   openModal("betModal");
 }
 
@@ -802,44 +826,57 @@ document.getElementById("confirmBet").onclick = function() {
   var session = document.getElementById("betSession").value;
   if (selectedNumbers.length === 0) { toast("请选择至少一个号码", "err"); return; }
   if (!amt || amt <= 0) { toast("请输入有效金额", "err"); return; }
-  if (amt * selectedNumbers.length > user.balance) { toast("余额不足", "err"); return; }
 
   var btn = this;
   btn.disabled = true;
   btn.textContent = "投注中...";
 
-  var promises = selectedNumbers.map(function(num) {
-    return fetch(API + "/bet", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username: user.username, number: num, amount: amt, session: session })
-    }).then(function(r) { return r.json(); });
-  });
+  // 先拉一次最新余额做前端校验
+  fetch(API + "/user/" + encodeURIComponent(username))
+    .then(function(r) { return r.json(); })
+    .then(function(userData) {
+      if (!userData.success) { toast("获取用户信息失败", "err"); return Promise.reject(); }
+      var totalCost = amt * selectedNumbers.length;
+      if (totalCost > userData.balance) { toast("余额不足", "err"); return Promise.reject(); }
 
-  Promise.all(promises).then(function(results) {
-    var ok = results.filter(function(r) { return r.success; }).length;
-    var cost = amt * ok;
-    user.balance -= cost;
-    user.totalBet = (user.totalBet || 0) + cost;
-    localStorage.setItem("user", JSON.stringify(user));
-    toast("✅ 投注成功 " + ok + " 注，共 ¥" + cost, "ok");
-    closeModal("betModal");
-    loadData();
-    if (document.getElementById("mePage").style.display === "block") loadMyBets();
-  }).finally(function() {
-    btn.disabled = false;
-    btn.textContent = "确认投注";
-  });
+      var promises = selectedNumbers.map(function(num) {
+        return fetch(API + "/bet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: username, number: num, amount: amt, session: session })
+        }).then(function(r) { return r.json(); });
+      });
+
+      return Promise.all(promises);
+    })
+    .then(function(results) {
+      if (!results) return;
+      var ok = results.filter(function(r) { return r.success; }).length;
+      var cost = amt * ok;
+      toast("✅ 投注成功 " + ok + " 注，共 ¥" + cost, "ok");
+      closeModal("betModal");
+      // ✅ 投注后从后端拉最新余额
+      refreshBalance();
+      if (document.getElementById("mePage").style.display === "block") {
+        renderMePage(); // 我的页面也刷新
+      }
+    })
+    .catch(function() {})
+    .finally(function() {
+      btn.disabled = false;
+      btn.textContent = "确认投注";
+    });
 };
 
-// ===== 我的页面（跳转，非弹窗）=====
+// ===== 我的页面 =====
 function showMe() {
   document.getElementById("homePage").style.display = "none";
   document.getElementById("mePage").style.display = "block";
   document.querySelectorAll(".nav-item").forEach(function(x) { x.classList.remove("active"); });
   document.querySelector('[data-tab="me"]').classList.add("active");
 
-  if (!user) {
+  if (!username) {
+    // 未登录：显示登录/注册
     document.getElementById("mePageBody").innerHTML = `
       <div class="auth-tabs">
         <div class="auth-tab active" onclick="switchAuth('login',this)">登录</div>
@@ -861,17 +898,43 @@ function showMe() {
 }
 
 function renderMePage() {
-  document.getElementById("mePageBody").innerHTML = `
-    <div class="account-info">
-      <div class="account-row"><label>用户名</label><span>${user.username}</span></div>
-      <div class="account-row"><label>余额</label><span class="hl">¥${user.balance}</span></div>
-      <div class="account-row"><label>总投注</label><span>¥${user.totalBet || 0}</span></div>
-    </div>
-    <div class="section-title">🎯 投注记录</div>
-    <div class="bet-list" id="myBetList"></div>
-    <div class="report-grid" id="myReport"></div>
-    <button class="btn-cancel" style="width:100%;margin-top:24px;padding:15px;border-radius:14px;background:#ff4757;color:#fff;border:none;font-size:16px;font-weight:600;cursor:pointer" onclick="logout()">退出登录</button>`;
-  loadMyBets();
+  // ✅ 强制从后端拉数据，不用 localStorage
+  fetch(API + "/user/" + encodeURIComponent(username))
+    .then(function(r) { return r.json(); })
+    .then(function(r) {
+      if (!r.success) return;
+      document.getElementById("mePageBody").innerHTML = `
+        <div class="account-info">
+          <div class="account-row"><label>用户名</label><span>${r.username}</span></div>
+          <div class="account-row"><label>余额</label><span class="hl">¥${r.balance}</span></div>
+          <div class="account-row"><label>总投注</label><span>¥${r.totalBet || 0}</span></div>
+        </div>
+        <div class="section-title">🎯 投注记录</div>
+        <div class="bet-list" id="myBetList"></div>
+        <div class="report-grid" id="myReport"></div>
+        <button class="btn-cancel" style="width:100%;margin-top:24px;padding:15px;border-radius:14px;background:#ff4757;color:#fff;border:none;font-size:16px;font-weight:600;cursor:pointer" onclick="logout()">退出登录</button>`;
+
+      // 渲染投注记录
+      var list = document.getElementById("myBetList");
+      if (!r.bets || r.bets.length === 0) {
+        list.innerHTML = '<div class="empty-state"><div class="es-icon">📄</div><div class="es-text">暂无投注记录</div></div>';
+      } else {
+        var html = "";
+        r.bets.slice().reverse().forEach(function(b) {
+          var st = b.status === "won" ? "✅ 中奖 +" + b.payout : b.status === "lost" ? "❌ 未中" : "⏳ 待开奖";
+          html += '<div class="bet-item"><div class="bet-info-left"><span class="bet-num">' + formatNum(b.number) + '</span><span class="bet-meta">' + b.session + ' · ' + b.time + '</span></div><div class="bet-info-right"><div class="bet-amount">¥' + b.amount + '</div><div class="bet-status ' + b.status + '">' + st + '</div></div></div>';
+        });
+        list.innerHTML = html;
+      }
+
+      // 渲染报表
+      var s = r.stats || {};
+      document.getElementById("myReport").innerHTML =
+        '<div class="report-card orange"><div class="rc-label">🎲 投注次数</div><div class="rc-value">' + (s.count||0) + '</div></div>' +
+        '<div class="report-card gold"><div class="rc-label">💰 投注金额</div><div class="rc-value">¥' + (s.amount||0) + '</div></div>' +
+        '<div class="report-card green"><div class="rc-label">🏆 中奖次数</div><div class="rc-value">' + (s.won||0) + '</div></div>' +
+        '<div class="report-card ' + ((s.profit||0)>=0?"green":"red") + '"><div class="rc-label">📊 总盈亏</div><div class="rc-value">' + ((s.profit||0)>=0?"+":"") + (s.profit||0) + '</div></div>';
+    });
 }
 
 function hideMe() {
@@ -899,9 +962,13 @@ function doLogin() {
     body: JSON.stringify({ username: u, password: p })
   }).then(function(r) { return r.json(); }).then(function(d) {
     if (d.success) {
-      user = d;
-      localStorage.setItem("user", JSON.stringify(d));
+      // ✅ 只存用户名，不存余额
+      username = d.username;
+      localStorage.setItem("username", username);
+      localStorage.removeItem("user"); // 清掉旧格式缓存
       toast("登录成功", "ok");
+      document.getElementById("balanceBar").style.display = "flex";
+      refreshBalance(); // ✅ 从后端拉余额
       renderMePage();
       loadData();
     } else { toast(d.message || "登录失败", "err"); }
@@ -929,43 +996,27 @@ function doLoginAfterRegister(u, p) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username: u, password: p })
   }).then(function(r) { return r.json(); }).then(function(d) {
-    if (d.success) { user = d; localStorage.setItem("user", JSON.stringify(d)); renderMePage(); loadData(); }
+    if (d.success) {
+      username = d.username;
+      localStorage.setItem("username", username);
+      localStorage.removeItem("user");
+      document.getElementById("balanceBar").style.display = "flex";
+      refreshBalance();
+      renderMePage();
+      loadData();
+    }
   });
 }
 
 function logout() {
-  user = null;
+  username = null;
+  localStorage.removeItem("username");
   localStorage.removeItem("user");
   toast("已退出登录", "info");
   showMe();
 }
 
-// ===== 我的页面：投注记录 & 报表 =====
-function loadMyBets() {
-  if (!user) return;
-  fetch(API + "/user/" + encodeURIComponent(user.username))
-  .then(function(r) { return r.json(); }).then(function(r) {
-    var list = document.getElementById("myBetList");
-    if (!r.bets || r.bets.length === 0) {
-      list.innerHTML = '<div class="empty-state"><div class="es-icon">📄</div><div class="es-text">暂无投注记录</div></div>';
-    } else {
-      var html = "";
-      r.bets.slice().reverse().forEach(function(b) {
-        var st = b.status === "won" ? "✅ 中奖 +" + b.payout : b.status === "lost" ? "❌ 未中" : "⏳ 待开奖";
-        html += '<div class="bet-item"><div class="bet-info-left"><span class="bet-num">' + formatNum(b.number) + '</span><span class="bet-meta">' + b.session + ' · ' + b.time + '</span></div><div class="bet-info-right"><div class="bet-amount">¥' + b.amount + '</div><div class="bet-status ' + b.status + '">' + st + '</div></div></div>';
-      });
-      list.innerHTML = html;
-    }
-    var s = r.stats || {};
-    document.getElementById("myReport").innerHTML =
-      '<div class="report-card orange"><div class="rc-label">🎲 投注次数</div><div class="rc-value">' + (s.count||0) + '</div></div>' +
-      '<div class="report-card gold"><div class="rc-label">💰 投注金额</div><div class="rc-value">¥' + (s.amount||0) + '</div></div>' +
-      '<div class="report-card green"><div class="rc-label">🏆 中奖次数</div><div class="rc-value">' + (s.won||0) + '</div></div>' +
-      '<div class="report-card ' + ((s.profit||0)>=0?"green":"red") + '"><div class="rc-label">📊 总盈亏</div><div class="rc-value">' + ((s.profit||0)>=0?"+":"") + (s.profit||0) + '</div></div>';
-  });
-}
-
-// ===== 数据加载（3秒实时刷新）=====
+// ===== 数据加载（3秒刷新）=====
 function loadData() {
   fetch(API + "/data").then(function(r) { return r.json(); }).then(function(r) {
     if (!r.success) return;
@@ -998,11 +1049,10 @@ function loadData() {
     document.getElementById("s1Status").textContent = s1.status === "closed" ? "✅ 已开奖" : "⏳ 等待中";
     document.getElementById("s2Status").textContent = s2.status === "closed" ? "✅ 已开奖" : "⏳ 等待中";
 
-    // 余额条
-    if (user) {
+    // ✅ 余额条：从后端拉，不从 localStorage 读
+    if (username) {
       document.getElementById("balanceBar").style.display = "flex";
-      document.getElementById("balanceValue").textContent = user.balance;
-      document.getElementById("totalBetValue").textContent = user.totalBet || 0;
+      refreshBalance();
     }
 
     // 跑马灯
@@ -1047,7 +1097,6 @@ document.querySelectorAll(".nav-item").forEach(function(item) {
     else if (tab === "history") { loadHistory(); openModal("historyModal"); }
     else if (tab === "me") { showMe(); }
     else {
-      // 首页
       document.getElementById("mePage").style.display = "none";
       document.getElementById("homePage").style.display = "block";
       document.querySelectorAll(".nav-item").forEach(function(x) { x.classList.remove("active"); });
@@ -1058,11 +1107,18 @@ document.querySelectorAll(".nav-item").forEach(function(item) {
 
 // ===== 启动 =====
 loadData();
-setInterval(loadData, 3000); // 3秒实时刷新
-if (user) {
+setInterval(loadData, 3000); // 3秒刷新开奖数据
+
+// ✅ 启动时如果有登录态，拉一次余额
+if (username) {
   document.getElementById("balanceBar").style.display = "flex";
-  document.getElementById("balanceValue").textContent = user.balance;
+  refreshBalance();
 }
+
+// ✅ 每5秒轮询余额（开奖后自动更新）
+setInterval(function() {
+  if (username) refreshBalance();
+}, 5000);
 </script>
 </body>
 </html>
