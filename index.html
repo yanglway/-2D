@@ -1,718 +1,3 @@
-<!DOCTYPE html>
-<html lang="zh-CN">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>财神2D</title>
-<style>
-* { margin:0; padding:0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
-  background: linear-gradient(180deg, #0f0f23 0%, #1a1a3e 50%, #0f0f23 100%);
-  color: #fff;
-  min-height: 100vh;
-  padding-bottom: 90px;
-  overflow-x: hidden;
-}
-
-/* ===== 顶部 ===== */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  background: rgba(255,255,255,0.03);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.header-left { display: flex; align-items: baseline; gap: 14px; }
-.main-number {
-  font-size: 56px;
-  font-weight: 900;
-  color: #ff6b35;
-  text-shadow: 0 0 40px rgba(255,107,53,0.5);
-  letter-spacing: 3px;
-  transition: all 0.4s;
-}
-.main-number.pop { animation: numPop 0.6s ease; }
-@keyframes numPop {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.35); color: #f7c948; }
-  100% { transform: scale(1); }
-}
-.countdown {
-  font-size: 13px;
-  color: #aaa;
-  background: rgba(255,255,255,0.08);
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-weight: 500;
-}
-.header-right { display: flex; align-items: center; gap: 10px; }
-.icon-live { background: rgba(255,107,53,0.15); padding: 8px 10px; border-radius: 50%; font-size: 16px; }
-.infinity { font-size: 18px; color: #ff6b35; font-weight: bold; }
-
-/* ===== 投注信息条 ===== */
-.bet-info {
-  padding: 14px 20px;
-  background: rgba(255,255,255,0.02);
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-.bet-row { display: flex; justify-content: space-between; align-items: center; margin: 5px 0; }
-.bet-label { color: #777; font-size: 13px; }
-.bet-value { font-size: 15px; font-weight: 600; }
-.set-value { color: #4cd964; }
-.val-value { color: #f7c948; }
-
-/* ===== 日期 ===== */
-.date-section {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 12px 20px;
-  color: #999;
-  font-size: 13px;
-}
-
-/* ===== 场次卡片 ===== */
-.session-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
-  padding: 16px 20px;
-}
-.session-card {
-  background: linear-gradient(145deg, #1e1e3a, #16162b);
-  border-radius: 18px;
-  padding: 24px 16px;
-  text-align: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  border: 1px solid rgba(255,255,255,0.06);
-  transition: transform 0.3s;
-}
-.session-card:hover { transform: translateY(-3px); }
-.session-time { font-size: 13px; color: #888; margin-bottom: 12px; font-weight: 500; }
-.session-number {
-  font-size: 48px;
-  font-weight: 900;
-  color: #fff;
-  text-shadow: 0 0 20px rgba(255,255,255,0.15);
-  transition: color 0.3s;
-}
-.session-number.drawn { color: #ff6b35; text-shadow: 0 0 25px rgba(255,107,53,0.6); }
-.session-status { font-size: 12px; margin-top: 10px; color: #4cd964; font-weight: 500; }
-.session-status.waiting { color: #f7c948; }
-
-/* ===== 开奖横幅 ===== */
-.result-banner {
-  display: none;
-  background: linear-gradient(135deg, #ff6b35, #f7c948);
-  color: #fff;
-  text-align: center;
-  padding: 14px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  border-radius: 14px;
-  margin: 10px 20px;
-  box-shadow: 0 4px 25px rgba(255,107,53,0.4);
-}
-.result-banner.show { display: block; animation: bannerIn 0.5s ease; }
-@keyframes bannerIn {
-  0% { transform: scale(0.85); opacity: 0; }
-  100% { transform: scale(1); opacity: 1; }
-}
-
-/* ===== 余额条 ===== */
-.balance-bar {
-  display: none;
-  justify-content: space-between;
-  align-items: center;
-  background: rgba(255,255,255,0.05);
-  backdrop-filter: blur(10px);
-  color: #fff;
-  padding: 12px 20px;
-  font-size: 14px;
-  border-radius: 12px;
-  margin: 10px 20px;
-  border: 1px solid rgba(255,255,255,0.08);
-}
-.balance-bar b { color: #ff6b35; font-size: 16px; }
-
-/* ===== 广告弹窗 ===== */
-.ad-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(6px);
-  z-index: 9998;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-.ad-overlay.show { display: flex; animation: fadeIn 0.3s ease; }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-.ad-content {
-  background: linear-gradient(180deg, #1e1e3a, #16162b);
-  border-radius: 24px;
-  padding: 36px 30px;
-  max-width: 400px;
-  width: 100%;
-  text-align: center;
-  border: 1px solid rgba(255,255,255,0.1);
-  box-shadow: 0 25px 70px rgba(0,0,0,0.6);
-  animation: popIn 0.4s ease;
-}
-@keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-.ad-content h3 { color: #ff6b35; margin-bottom: 14px; font-size: 22px; }
-.ad-content p { color: #ccc; line-height: 1.7; margin-bottom: 24px; font-size: 14px; }
-.ad-content button {
-  background: linear-gradient(135deg, #ff6b35, #f7c948);
-  color: #fff;
-  border: none;
-  padding: 14px 40px;
-  border-radius: 14px;
-  font-size: 15px;
-  cursor: pointer;
-  font-weight: 600;
-  box-shadow: 0 4px 15px rgba(255,107,53,0.3);
-}
-
-/* ===== 跑马灯 ===== */
-.marquee {
-  display: none;
-  background: rgba(255,107,53,0.08);
-  border: 1px solid rgba(255,107,53,0.15);
-  color: #ff6b35;
-  padding: 10px 16px;
-  font-size: 13px;
-  overflow: hidden;
-  white-space: nowrap;
-  margin: 0 20px 10px;
-  border-radius: 10px;
-}
-.marquee.show { display: block; }
-.marquee span { display: inline-block; animation: scroll 18s linear infinite; font-weight: 500; }
-@keyframes scroll { 0% { transform: translateX(100%); } 100% { transform: translateX(-100%); } }
-
-/* ===== 底部导航 ===== */
-.bottom-nav {
-  position: fixed;
-  bottom: 0; left: 0; right: 0;
-  height: 72px;
-  background: rgba(15,15,35,0.95);
-  backdrop-filter: blur(20px);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  border-top: 1px solid rgba(255,255,255,0.08);
-  z-index: 1000;
-  padding-bottom: env(safe-area-inset-bottom);
-}
-.nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  color: #555;
-  font-size: 10px;
-  cursor: pointer;
-  padding: 8px 0;
-  flex: 1;
-  transition: color 0.3s;
-}
-.nav-item.active { color: #ff6b35; }
-.nav-icon { font-size: 22px; margin-bottom: 2px; }
-
-/* ===== 弹窗通用 ===== */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(6px);
-  z-index: 2000;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-.modal-overlay.show { display: flex; animation: fadeIn 0.25s ease; }
-.modal-content {
-  background: linear-gradient(180deg, #1e1e3a, #16162b);
-  border-radius: 24px;
-  width: 100%;
-  max-width: 440px;
-  max-height: 88vh;
-  overflow-y: auto;
-  box-shadow: 0 25px 70px rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.1);
-  animation: popIn 0.3s ease;
-}
-.modal-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px 24px;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-}
-.modal-header h3 { font-size: 18px; color: #fff; }
-.modal-close { font-size: 24px; color: #888; cursor: pointer; padding: 4px 8px; line-height: 1; }
-.modal-close:hover { color: #fff; }
-.modal-body { padding: 24px; }
-.modal-row { margin-bottom: 18px; }
-.modal-row label { display: block; font-size: 13px; color: #999; margin-bottom: 8px; font-weight: 500; }
-.modal-row input, .modal-row select {
-  width: 100%;
-  padding: 13px 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.04);
-  color: #fff;
-  font-size: 15px;
-  outline: none;
-  transition: border-color 0.3s;
-}
-.modal-row input:focus, .modal-row select:focus { border-color: #ff6b35; background: rgba(255,107,53,0.05); }
-.modal-footer { display: flex; gap: 12px; padding: 0 24px 24px; }
-.btn-cancel, .btn-confirm {
-  flex: 1; padding: 15px;
-  border-radius: 14px; border: none;
-  font-size: 16px; font-weight: 600;
-  cursor: pointer; transition: all 0.3s;
-}
-.btn-cancel { background: rgba(255,255,255,0.06); color: #ccc; }
-.btn-cancel:hover { background: rgba(255,255,255,0.1); }
-.btn-confirm { background: linear-gradient(135deg, #ff6b35, #f7c948); color: #fff; box-shadow: 0 4px 18px rgba(255,107,53,0.35); }
-.btn-confirm:active { transform: scale(0.97); }
-.btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
-
-/* ===== 号码网格 ===== */
-.number-grid {
-  display: grid;
-  grid-template-columns: repeat(10, 1fr);
-  gap: 6px;
-  max-height: 280px;
-  overflow-y: auto;
-  padding: 10px;
-  background: rgba(0,0,0,0.25);
-  border-radius: 14px;
-}
-.number-cell {
-  aspect-ratio: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255,255,255,0.04);
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: 1px solid transparent;
-  color: #ccc;
-}
-.number-cell:hover { background: rgba(255,255,255,0.08); color: #fff; }
-.number-cell.selected {
-  background: linear-gradient(135deg, #ff6b35, #f7c948);
-  color: #fff;
-  transform: scale(1.08);
-  box-shadow: 0 0 18px rgba(255,107,53,0.5);
-  border-color: rgba(255,255,255,0.2);
-}
-.number-grid::-webkit-scrollbar { width: 4px; }
-.number-grid::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
-
-/* ===== 已选标签 ===== */
-.selected-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 12px;
-  min-height: 28px;
-}
-.selected-tag {
-  background: linear-gradient(135deg, #ff6b35, #f7c948);
-  color: #fff;
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.selected-tag .x { cursor: pointer; opacity: 0.8; }
-.selected-tag .x:hover { opacity: 1; }
-
-/* ===== 我的页面 ===== */
-.me-page {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: linear-gradient(180deg, #0f0f23 0%, #1a1a3e 100%);
-  z-index: 1500;
-  padding: 20px;
-  overflow-y: auto;
-  padding-bottom: 100px;
-}
-.me-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 24px;
-  position: sticky;
-  top: 0;
-  background: linear-gradient(180deg, #0f0f23, rgba(15,15,35,0.9));
-  padding: 10px 0;
-  z-index: 10;
-}
-.back-btn { font-size: 24px; cursor: pointer; color: #ccc; padding: 4px 8px; }
-.back-btn:hover { color: #fff; }
-.me-title { font-size: 20px; font-weight: 600; }
-
-/* ===== 登录/注册 ===== */
-.auth-tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 1px solid rgba(255,255,255,0.08); }
-.auth-tab { flex: 1; padding: 14px; text-align: center; cursor: pointer; color: #777; font-size: 15px; border-bottom: 2px solid transparent; transition: all 0.3s; font-weight: 500; }
-.auth-tab.active { color: #ff6b35; border-bottom-color: #ff6b35; font-weight: 600; }
-.auth-form { padding: 0 4px; }
-.auth-form input {
-  width: 100%;
-  padding: 14px 16px;
-  border-radius: 14px;
-  border: 1px solid rgba(255,255,255,0.1);
-  background: rgba(255,255,255,0.04);
-  color: #fff;
-  font-size: 15px;
-  margin-bottom: 14px;
-  outline: none;
-}
-.auth-form input:focus { border-color: #ff6b35; }
-.auth-form button {
-  width: 100%;
-  padding: 15px;
-  border-radius: 14px;
-  border: none;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 12px;
-  transition: all 0.3s;
-}
-.btn-primary { background: linear-gradient(135deg, #ff6b35, #f7c948); color: #fff; box-shadow: 0 4px 18px rgba(255,107,53,0.3); }
-.btn-secondary { background: rgba(255,255,255,0.06); color: #ccc; }
-
-/* ===== 账户信息 ===== */
-.account-info { padding: 20px 4px; }
-.account-row { display: flex; justify-content: space-between; align-items: center; padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.account-row:last-child { border-bottom: none; }
-.account-row label { color: #888; font-size: 14px; }
-.account-row span { font-size: 15px; font-weight: 600; color: #fff; }
-.account-row span.hl { color: #ff6b35; font-size: 17px; }
-
-/* ===== 投注记录 ===== */
-.section-title { font-size: 14px; color: #ccc; margin: 16px 4px 10px; font-weight: 500; }
-.bet-list { max-height: 350px; overflow-y: auto; padding: 0 4px; }
-.bet-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.bet-item:last-child { border-bottom: none; }
-.bet-info-left { display: flex; flex-direction: column; gap: 3px; }
-.bet-num { font-size: 20px; font-weight: 800; color: #ff6b35; }
-.bet-meta { font-size: 11px; color: #666; }
-.bet-info-right { text-align: right; }
-.bet-amount { font-size: 14px; color: #ccc; font-weight: 500; }
-.bet-status { font-size: 11px; margin-top: 3px; font-weight: 500; }
-.bet-status.won { color: #4cd964; }
-.bet-status.lost { color: #666; }
-.bet-status.pending { color: #f7c948; }
-
-/* ===== 报表 ===== */
-.report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 16px; }
-.report-card { background: rgba(255,255,255,0.04); border-radius: 12px; padding: 14px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
-.report-card .rc-label { font-size: 11px; color: #777; margin-bottom: 6px; }
-.report-card .rc-value { font-size: 20px; font-weight: 800; }
-.report-card.orange .rc-value { color: #ff6b35; }
-.report-card.green .rc-value { color: #4cd964; }
-.report-card.gold .rc-value { color: #f7c948; }
-.report-card.red .rc-value { color: #ff4757; }
-.report-card.blue .rc-value { color: #1e90ff; }
-
-/* ===== 历史记录 ===== */
-.history-list { max-height: 450px; overflow-y: auto; padding: 0 4px; }
-.history-item { display: flex; justify-content: space-between; align-items: center; padding: 16px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.history-item:last-child { border-bottom: none; }
-.history-date { font-size: 14px; color: #ccc; font-weight: 500; }
-.history-session { font-size: 11px; color: #666; margin-top: 3px; }
-.history-number { font-size: 26px; font-weight: 900; color: #ff6b35; background: rgba(255,107,53,0.1); width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-
-/* ===== Toast ===== */
-.toast {
-  position: fixed;
-  bottom: 90px;
-  left: 50%;
-  transform: translateX(-50%) translateY(20px);
-  background: rgba(0,0,0,0.9);
-  color: #fff;
-  padding: 14px 28px;
-  border-radius: 30px;
-  font-size: 14px;
-  z-index: 9999;
-  opacity: 0;
-  transition: all 0.35s;
-  pointer-events: none;
-  white-space: nowrap;
-  font-weight: 500;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.toast.ok { background: #2ed573; }
-.toast.err { background: #ff4757; }
-.toast.info { background: #1e90ff; }
-
-/* ===== 空状态 ===== */
-.empty-state { text-align: center; padding: 40px 20px; color: #555; }
-.empty-state .es-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
-.empty-state .es-text { font-size: 14px; }
-
-/* ===== 滚动条 ===== */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.25); }
-
-/* ===== 响应式 ===== */
-@media (max-width: 375px) {
-  .main-number { font-size: 44px; }
-  .session-number { font-size: 40px; }
-  .number-grid { grid-template-columns: repeat(8, 1fr); }
-  .report-grid { grid-template-columns: 1fr 1fr; }
-}
-</style>
-</head>
-<body>
-
-<!-- ===== 首页 ===== -->
-<div id="homePage">
-  <div class="header">
-    <div class="header-left">
-      <div class="main-number" id="currentNumber">--</div>
-      <div class="countdown" id="countdown">--:--:--</div>
-    </div>
-    <div class="header-right">
-      <div class="icon-live"><span class="infinity">&#8734;</span></div>
-    </div>
-  </div>
-
-  <div class="bet-info">
-    <div class="bet-row"><span class="bet-label">SET:</span><span class="bet-value set-value" id="setValue">--</span></div>
-    <div class="bet-row"><span class="bet-label">VAL:</span><span class="bet-value val-value" id="valValue">--</span></div>
-  </div>
-
-  <div class="date-section"><span>&#128197;</span><span id="currentDate">--</span></div>
-
-  <div class="session-grid">
-    <div class="session-card" id="card1">
-      <div class="session-time">12:00 PM</div>
-      <div class="session-number" id="s1Num">--</div>
-      <div class="session-status waiting" id="s1Status">&#9203; 等待中</div>
-    </div>
-    <div class="session-card" id="card2">
-      <div class="session-time">04:30 PM</div>
-      <div class="session-number" id="s2Num">--</div>
-      <div class="session-status waiting" id="s2Status">&#9203; 等待中</div>
-    </div>
-  </div>
-
-  <div class="result-banner" id="resultBanner"><span id="resultText"></span></div>
-
-  <div class="marquee" id="marquee"><span id="marqueeText"></span></div>
-
-  <div class="balance-bar" id="balanceBar">
-    <span>余额: &#165;<b id="balanceValue">0</b></span>
-    <span>总投注: &#165;<b id="totalBetValue">0</b></span>
-  </div>
-
-  <div class="ad-overlay" id="adOverlay">
-    <div class="ad-content">
-      <h3 id="adTitle"></h3>
-      <p id="adContent"></p>
-      <button onclick="closeAd()">我知道了</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== 我的页面 ===== -->
-<div class="me-page" id="mePage">
-  <div class="me-header">
-    <span class="back-btn" onclick="hideMe()">&#8592;</span>
-    <span class="me-title" id="meTitle">&#128100; 我的账户</span>
-    <span style="width:24px;"></span>
-  </div>
-  <div id="mePageBody"></div>
-</div>
-
-<!-- ===== 投注弹窗 ===== -->
-<div class="modal-overlay" id="betModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>&#127919; 投注（可多选号码）</h3>
-      <span class="modal-close" onclick="closeModal('betModal')">&#10005;</span>
-    </div>
-    <div class="modal-body">
-      <div class="modal-row">
-        <label>已选号码（点击格子选择/取消）</label>
-        <div class="selected-tags" id="selectedTags"></div>
-        <div class="number-grid" id="numberGrid">
-<div class="number-cell" onclick="toggleNum('00',this)">00</div>
-<div class="number-cell" onclick="toggleNum('01',this)">01</div>
-<div class="number-cell" onclick="toggleNum('02',this)">02</div>
-<div class="number-cell" onclick="toggleNum('03',this)">03</div>
-<div class="number-cell" onclick="toggleNum('04',this)">04</div>
-<div class="number-cell" onclick="toggleNum('05',this)">05</div>
-<div class="number-cell" onclick="toggleNum('06',this)">06</div>
-<div class="number-cell" onclick="toggleNum('07',this)">07</div>
-<div class="number-cell" onclick="toggleNum('08',this)">08</div>
-<div class="number-cell" onclick="toggleNum('09',this)">09</div>
-<div class="number-cell" onclick="toggleNum('10',this)">10</div>
-<div class="number-cell" onclick="toggleNum('11',this)">11</div>
-<div class="number-cell" onclick="toggleNum('12',this)">12</div>
-<div class="number-cell" onclick="toggleNum('13',this)">13</div>
-<div class="number-cell" onclick="toggleNum('14',this)">14</div>
-<div class="number-cell" onclick="toggleNum('15',this)">15</div>
-<div class="number-cell" onclick="toggleNum('16',this)">16</div>
-<div class="number-cell" onclick="toggleNum('17',this)">17</div>
-<div class="number-cell" onclick="toggleNum('18',this)">18</div>
-<div class="number-cell" onclick="toggleNum('19',this)">19</div>
-<div class="number-cell" onclick="toggleNum('20',this)">20</div>
-<div class="number-cell" onclick="toggleNum('21',this)">21</div>
-<div class="number-cell" onclick="toggleNum('22',this)">22</div>
-<div class="number-cell" onclick="toggleNum('23',this)">23</div>
-<div class="number-cell" onclick="toggleNum('24',this)">24</div>
-<div class="number-cell" onclick="toggleNum('25',this)">25</div>
-<div class="number-cell" onclick="toggleNum('26',this)">26</div>
-<div class="number-cell" onclick="toggleNum('27',this)">27</div>
-<div class="number-cell" onclick="toggleNum('28',this)">28</div>
-<div class="number-cell" onclick="toggleNum('29',this)">29</div>
-<div class="number-cell" onclick="toggleNum('30',this)">30</div>
-<div class="number-cell" onclick="toggleNum('31',this)">31</div>
-<div class="number-cell" onclick="toggleNum('32',this)">32</div>
-<div class="number-cell" onclick="toggleNum('33',this)">33</div>
-<div class="number-cell" onclick="toggleNum('34',this)">34</div>
-<div class="number-cell" onclick="toggleNum('35',this)">35</div>
-<div class="number-cell" onclick="toggleNum('36',this)">36</div>
-<div class="number-cell" onclick="toggleNum('37',this)">37</div>
-<div class="number-cell" onclick="toggleNum('38',this)">38</div>
-<div class="number-cell" onclick="toggleNum('39',this)">39</div>
-<div class="number-cell" onclick="toggleNum('40',this)">40</div>
-<div class="number-cell" onclick="toggleNum('41',this)">41</div>
-<div class="number-cell" onclick="toggleNum('42',this)">42</div>
-<div class="number-cell" onclick="toggleNum('43',this)">43</div>
-<div class="number-cell" onclick="toggleNum('44',this)">44</div>
-<div class="number-cell" onclick="toggleNum('45',this)">45</div>
-<div class="number-cell" onclick="toggleNum('46',this)">46</div>
-<div class="number-cell" onclick="toggleNum('47',this)">47</div>
-<div class="number-cell" onclick="toggleNum('48',this)">48</div>
-<div class="number-cell" onclick="toggleNum('49',this)">49</div>
-<div class="number-cell" onclick="toggleNum('50',this)">50</div>
-<div class="number-cell" onclick="toggleNum('51',this)">51</div>
-<div class="number-cell" onclick="toggleNum('52',this)">52</div>
-<div class="number-cell" onclick="toggleNum('53',this)">53</div>
-<div class="number-cell" onclick="toggleNum('54',this)">54</div>
-<div class="number-cell" onclick="toggleNum('55',this)">55</div>
-<div class="number-cell" onclick="toggleNum('56',this)">56</div>
-<div class="number-cell" onclick="toggleNum('57',this)">57</div>
-<div class="number-cell" onclick="toggleNum('58',this)">58</div>
-<div class="number-cell" onclick="toggleNum('59',this)">59</div>
-<div class="number-cell" onclick="toggleNum('60',this)">60</div>
-<div class="number-cell" onclick="toggleNum('61',this)">61</div>
-<div class="number-cell" onclick="toggleNum('62',this)">62</div>
-<div class="number-cell" onclick="toggleNum('63',this)">63</div>
-<div class="number-cell" onclick="toggleNum('64',this)">64</div>
-<div class="number-cell" onclick="toggleNum('65',this)">65</div>
-<div class="number-cell" onclick="toggleNum('66',this)">66</div>
-<div class="number-cell" onclick="toggleNum('67',this)">67</div>
-<div class="number-cell" onclick="toggleNum('68',this)">68</div>
-<div class="number-cell" onclick="toggleNum('69',this)">69</div>
-<div class="number-cell" onclick="toggleNum('70',this)">70</div>
-<div class="number-cell" onclick="toggleNum('71',this)">71</div>
-<div class="number-cell" onclick="toggleNum('72',this)">72</div>
-<div class="number-cell" onclick="toggleNum('73',this)">73</div>
-<div class="number-cell" onclick="toggleNum('74',this)">74</div>
-<div class="number-cell" onclick="toggleNum('75',this)">75</div>
-<div class="number-cell" onclick="toggleNum('76',this)">76</div>
-<div class="number-cell" onclick="toggleNum('77',this)">77</div>
-<div class="number-cell" onclick="toggleNum('78',this)">78</div>
-<div class="number-cell" onclick="toggleNum('79',this)">79</div>
-<div class="number-cell" onclick="toggleNum('80',this)">80</div>
-<div class="number-cell" onclick="toggleNum('81',this)">81</div>
-<div class="number-cell" onclick="toggleNum('82',this)">82</div>
-<div class="number-cell" onclick="toggleNum('83',this)">83</div>
-<div class="number-cell" onclick="toggleNum('84',this)">84</div>
-<div class="number-cell" onclick="toggleNum('85',this)">85</div>
-<div class="number-cell" onclick="toggleNum('86',this)">86</div>
-<div class="number-cell" onclick="toggleNum('87',this)">87</div>
-<div class="number-cell" onclick="toggleNum('88',this)">88</div>
-<div class="number-cell" onclick="toggleNum('89',this)">89</div>
-<div class="number-cell" onclick="toggleNum('90',this)">90</div>
-<div class="number-cell" onclick="toggleNum('91',this)">91</div>
-<div class="number-cell" onclick="toggleNum('92',this)">92</div>
-<div class="number-cell" onclick="toggleNum('93',this)">93</div>
-<div class="number-cell" onclick="toggleNum('94',this)">94</div>
-<div class="number-cell" onclick="toggleNum('95',this)">95</div>
-<div class="number-cell" onclick="toggleNum('96',this)">96</div>
-<div class="number-cell" onclick="toggleNum('97',this)">97</div>
-<div class="number-cell" onclick="toggleNum('98',this)">98</div>
-<div class="number-cell" onclick="toggleNum('99',this)">99</div>
-        </div>
-      </div>
-      <div class="modal-row">
-        <label>每注金额（¥）</label>
-        <input type="number" id="betAmount" placeholder="请输入每注金额" min="1" value="100" oninput="updateBetSummary()">
-      </div>
-      <div class="modal-row">
-        <label>选择场次</label>
-        <select id="betSession">
-          <option value="12:00 PM">12:00 PM</option>
-          <option value="04:30 PM">04:30 PM</option>
-        </select>
-      </div>
-      <div class="modal-row" style="text-align:right;color:#ff6b35;font-size:13px;margin-bottom:0">
-        已选 <b id="selectedCount">0</b> 个号码
-        | 总投注: &#165;<b id="totalCost">0</b>
-        | 余额: &#165;<b id="betBalanceHint">0</b>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('betModal')">取消</button>
-      <button class="btn-confirm" id="confirmBet">确认投注</button>
-    </div>
-  </div>
-</div>
-
-<!-- ===== 历史记录弹窗 ===== -->
-<div class="modal-overlay" id="historyModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>&#128202; 开奖记录</h3>
-      <span class="modal-close" onclick="closeModal('historyModal')">&#10005;</span>
-    </div>
-    <div class="modal-body">
-      <div class="history-list" id="historyList"></div>
-    </div>
-  </div>
-</div>
-
-<!-- ===== 底部导航 ===== -->
-<div class="bottom-nav">
-  <div class="nav-item active" data-tab="home"><span class="nav-icon">&#127968;</span><span>首页</span></div>
-  <div class="nav-item" data-tab="bet"><span class="nav-icon">&#127919;</span><span>投注</span></div>
-  <div class="nav-item" data-tab="history"><span class="nav-icon">&#128202;</span><span>记录</span></div>
-  <div class="nav-item" data-tab="me"><span class="nav-icon">&#128100;</span><span>我的</span></div>
-</div>
-
-<div class="toast" id="toast"></div>
-
 <script>
 // ===== 全局配置 =====
 var API = "https://miantong.pythonanywhere.com/api";
@@ -721,6 +6,10 @@ var API = "https://miantong.pythonanywhere.com/api";
 var username = localStorage.getItem("username") || null;
 var lastNumber = null;
 var selectedNumbers = [];
+
+// ===== 汇率（核心新增）=====
+var rateRMB = 7.25;   // USD/CNY
+var rateMMK = 2100;  // USD/MMK
 
 // ===== Toast =====
 function toast(msg, type) {
@@ -742,22 +31,65 @@ function openModal(id) { document.getElementById(id).classList.add("show"); }
 function closeModal(id) { document.getElementById(id).classList.remove("show"); }
 function closeAd() { document.getElementById("adOverlay").classList.remove("show"); }
 
-// ===== ✅ 核心：从后端拉余额并刷新页面 =====
+// ===== ✅ 从后端拉余额 =====
 function refreshBalance(cb) {
   if (!username) return;
   fetch(API + "/user/" + encodeURIComponent(username))
     .then(function(r) { return r.json(); })
     .then(function(r) {
       if (!r.success) return;
-      // 更新余额条
       document.getElementById("balanceValue").textContent = r.balance;
       document.getElementById("totalBetValue").textContent = r.totalBet || 0;
-      // 投注弹窗里的余额提示也同步
       var hint = document.getElementById("betBalanceHint");
       if (hint) hint.textContent = r.balance;
       if (cb) cb(r);
-    })
-    .catch(function() { /* 网络错误静默处理 */ });
+    });
+}
+
+// ===== 汇率拉取（1秒）=====
+function loadRates() {
+  fetch("https://api.exchangerate.host/convert?from=USD&to=CNY")
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d && d.success && d.result) {
+        rateRMB = d.result;
+        document.getElementById("setValue").textContent = rateRMB.toFixed(4);
+      }
+    });
+
+  fetch("https://api.exchangerate.host/convert?from=USD&to=MMK")
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d && d.success && d.result) {
+        rateMMK = d.result;
+        document.getElementById("valValue").textContent = rateMMK.toFixed(2);
+      }
+    });
+}
+
+// ===== 从汇率生成“虚拟号码”（不影响真实开奖）=====
+function getRateNumber() {
+  // RMB：取小数点后最后一位
+  var rmbStr = rateRMB.toFixed(4);
+  var rmbLast = rmbStr.charAt(rmbStr.length - 1);
+
+  // MMK：取最后一位
+  var mmkStr = Math.floor(rateMMK).toString();
+  var mmkLast = mmkStr.charAt(mmkStr.length - 1);
+
+  return rmbLast + mmkLast;
+}
+
+// ===== 渲染汇率号码（1秒）=====
+function renderRateNumber() {
+  var num = getRateNumber();
+  var topEl = document.getElementById("currentNumber");
+  if (topEl.textContent !== num) {
+    topEl.textContent = num;
+    topEl.classList.remove("pop");
+    void topEl.offsetWidth;
+    topEl.classList.add("pop");
+  }
 }
 
 // ===== 号码多选 =====
@@ -800,10 +132,8 @@ function updateBetSummary() {
   var total = amt * selectedNumbers.length;
   document.getElementById("selectedCount").textContent = selectedNumbers.length;
   document.getElementById("totalCost").textContent = total;
-  // 余额提示由 refreshBalance 维护，这里只显示当前值
   var hint = document.getElementById("betBalanceHint");
   if (hint && hint.textContent === "0") {
-    // 首次打开弹窗时拉一次
     refreshBalance();
   }
 }
@@ -816,11 +146,11 @@ function showBetModal() {
   for (var i = 0; i < cells.length; i++) { cells[i].classList.remove("selected"); }
   renderSelectedTags();
   updateBetSummary();
-  refreshBalance(); // ✅ 打开时拉一次最新余额
+  refreshBalance();
   openModal("betModal");
 }
 
-// ===== 投注提交（多选）=====
+// ===== 投注提交 =====
 document.getElementById("confirmBet").onclick = function() {
   var amt = parseFloat(document.getElementById("betAmount").value);
   var session = document.getElementById("betSession").value;
@@ -831,7 +161,6 @@ document.getElementById("confirmBet").onclick = function() {
   btn.disabled = true;
   btn.textContent = "投注中...";
 
-  // 先拉一次最新余额做前端校验
   fetch(API + "/user/" + encodeURIComponent(username))
     .then(function(r) { return r.json(); })
     .then(function(userData) {
@@ -846,7 +175,6 @@ document.getElementById("confirmBet").onclick = function() {
           body: JSON.stringify({ username: username, number: num, amount: amt, session: session })
         }).then(function(r) { return r.json(); });
       });
-
       return Promise.all(promises);
     })
     .then(function(results) {
@@ -855,10 +183,9 @@ document.getElementById("confirmBet").onclick = function() {
       var cost = amt * ok;
       toast("✅ 投注成功 " + ok + " 注，共 ¥" + cost, "ok");
       closeModal("betModal");
-      // ✅ 投注后从后端拉最新余额
       refreshBalance();
       if (document.getElementById("mePage").style.display === "block") {
-        renderMePage(); // 我的页面也刷新
+        renderMePage();
       }
     })
     .catch(function() {})
@@ -876,7 +203,6 @@ function showMe() {
   document.querySelector('[data-tab="me"]').classList.add("active");
 
   if (!username) {
-    // 未登录：显示登录/注册
     document.getElementById("mePageBody").innerHTML = `
       <div class="auth-tabs">
         <div class="auth-tab active" onclick="switchAuth('login',this)">登录</div>
@@ -898,7 +224,6 @@ function showMe() {
 }
 
 function renderMePage() {
-  // ✅ 强制从后端拉数据，不用 localStorage
   fetch(API + "/user/" + encodeURIComponent(username))
     .then(function(r) { return r.json(); })
     .then(function(r) {
@@ -914,7 +239,6 @@ function renderMePage() {
         <div class="report-grid" id="myReport"></div>
         <button class="btn-cancel" style="width:100%;margin-top:24px;padding:15px;border-radius:14px;background:#ff4757;color:#fff;border:none;font-size:16px;font-weight:600;cursor:pointer" onclick="logout()">退出登录</button>`;
 
-      // 渲染投注记录
       var list = document.getElementById("myBetList");
       if (!r.bets || r.bets.length === 0) {
         list.innerHTML = '<div class="empty-state"><div class="es-icon">📄</div><div class="es-text">暂无投注记录</div></div>';
@@ -927,7 +251,6 @@ function renderMePage() {
         list.innerHTML = html;
       }
 
-      // 渲染报表
       var s = r.stats || {};
       document.getElementById("myReport").innerHTML =
         '<div class="report-card orange"><div class="rc-label">🎲 投注次数</div><div class="rc-value">' + (s.count||0) + '</div></div>' +
@@ -962,13 +285,12 @@ function doLogin() {
     body: JSON.stringify({ username: u, password: p })
   }).then(function(r) { return r.json(); }).then(function(d) {
     if (d.success) {
-      // ✅ 只存用户名，不存余额
       username = d.username;
       localStorage.setItem("username", username);
-      localStorage.removeItem("user"); // 清掉旧格式缓存
+      localStorage.removeItem("user");
       toast("登录成功", "ok");
       document.getElementById("balanceBar").style.display = "flex";
-      refreshBalance(); // ✅ 从后端拉余额
+      refreshBalance();
       renderMePage();
       loadData();
     } else { toast(d.message || "登录失败", "err"); }
@@ -1016,28 +338,16 @@ function logout() {
   showMe();
 }
 
-// ===== 数据加载（3秒刷新）=====
+// ===== 数据加载 =====
 function loadData() {
   fetch(API + "/data").then(function(r) { return r.json(); }).then(function(r) {
     if (!r.success) return;
 
-    // 顶部大号号码
-    var topEl = document.getElementById("currentNumber");
-    topEl.textContent = formatNum(r.currentNumber);
-    if (r.currentNumber !== "--" && r.currentNumber !== lastNumber) {
-      lastNumber = r.currentNumber;
-      topEl.classList.remove("pop");
-      void topEl.offsetWidth;
-      topEl.classList.add("pop");
-      var sess = (r.sessions["04:30 PM"] && r.sessions["04:30 PM"].status === "closed") ? "04:30 PM" : "12:00 PM";
-      showResult(r.currentNumber, sess);
-    }
+    // SET / VAL 文案修改（不改 HTML）
+    document.querySelector(".bet-label").textContent = "RMB:";
+    document.querySelectorAll(".bet-label")[1].textContent = "MMK:";
 
-    // SET / VAL
-    document.getElementById("setValue").textContent = r.set || "--";
-    document.getElementById("valValue").textContent = r.val || "--";
-
-    // 两个场次
+    // 场次信息
     var s1 = (r.sessions && r.sessions["12:00 PM"]) || {};
     var s2 = (r.sessions && r.sessions["04:30 PM"]) || {};
     document.getElementById("s1Num").textContent = formatNum(s1.number);
@@ -1049,18 +359,16 @@ function loadData() {
     document.getElementById("s1Status").textContent = s1.status === "closed" ? "✅ 已开奖" : "⏳ 等待中";
     document.getElementById("s2Status").textContent = s2.status === "closed" ? "✅ 已开奖" : "⏳ 等待中";
 
-    // ✅ 余额条：从后端拉，不从 localStorage 读
     if (username) {
       document.getElementById("balanceBar").style.display = "flex";
       refreshBalance();
     }
 
-    // 跑马灯
     if (r.ads && r.ads.marquee && r.ads.marquee.enabled) {
       document.getElementById("marquee").classList.add("show");
       document.getElementById("marqueeText").textContent = r.ads.marquee.content;
     }
-  }).catch(function() {});
+  });
 }
 
 function showResult(num, session) {
@@ -1073,7 +381,6 @@ function showResult(num, session) {
   toast("🎉 开奖: " + formatNum(num), "ok");
 }
 
-// ===== 历史记录 =====
 function loadHistory() {
   fetch(API + "/history").then(function(r) { return r.json(); }).then(function(r) {
     var list = document.getElementById("historyList");
@@ -1083,7 +390,7 @@ function loadHistory() {
     }
     var html = "";
     r.history.forEach(function(h) {
-      html += '<div class="history-item"><div><div class="history-date">' + h.date + '</div><div class="history-session">' + h.session + '</div></div><div class="history-number">' + formatNum(h.number) + '</div></div>';
+      html += '<div class="history-item"><div><div class="history-date">' + h.date + '</div><div class="history-session">' + h.session + '</div></div><div class="history-number">' + formatNum(h.number + '</div></div>';
     });
     list.innerHTML = html;
   });
@@ -1106,19 +413,20 @@ document.querySelectorAll(".nav-item").forEach(function(item) {
 });
 
 // ===== 启动 =====
-loadData();
-setInterval(loadData, 3000); // 3秒刷新开奖数据
+loadRates();
+renderRateNumber();
+setInterval(loadRates, 1000);
+setInterval(renderRateNumber, 1000);
 
-// ✅ 启动时如果有登录态，拉一次余额
+loadData();
+setInterval(loadData, 3000);
+
 if (username) {
   document.getElementById("balanceBar").style.display = "flex";
   refreshBalance();
 }
 
-// ✅ 每5秒轮询余额（开奖后自动更新）
 setInterval(function() {
   if (username) refreshBalance();
 }, 5000);
 </script>
-</body>
-</html>
