@@ -275,7 +275,7 @@ body {
   cursor: pointer; transition: all 0.3s;
 }
 .btn-cancel { background: rgba(255,255,255,0.06); color: #ccc; }
-.btn-cancel:hover { background: rgba(255,255,255,0.10); }
+.btn-cancel:hover { background: rgba(255,255,255,0.1); }
 .btn-confirm { background: linear-gradient(135deg, #ff6b35, #f7c948); color: #fff; box-shadow: 0 4px 18px rgba(255,107,53,0.35); }
 .btn-confirm:active { transform: scale(0.97); }
 .btn-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -427,7 +427,7 @@ body {
 .history-item:last-child { border-bottom: none; }
 .history-date { font-size: 14px; color: #ccc; font-weight: 500; }
 .history-session { font-size: 11px; color: #666; margin-top: 3px; }
-.history-number { font-size: 26px; font-weight: 900; color: #ff6b35; background: rgba(255,107,53,0.10); width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.history-number { font-size: 26px; font-weight: 900; color: #ff6b35; background: rgba(255,107,53,0.1); width: 52px; height: 52px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
 .toast {
   position: fixed;
@@ -481,6 +481,7 @@ body {
     </div>
   </div>
 
+  <!-- ✅ SET→RMB / VAL→MMK -->
   <div class="bet-info">
     <div class="bet-row"><span class="bet-label">RMB:</span><span class="bet-value set-value" id="setValue">--</span></div>
     <div class="bet-row"><span class="bet-label">MMK:</span><span class="bet-value val-value" id="valValue">--</span></div>
@@ -502,7 +503,6 @@ body {
   </div>
 
   <div class="result-banner" id="resultBanner"><span id="resultText"></span></div>
-
   <div class="marquee" id="marquee"><span id="marqueeText"></span></div>
 
   <div class="balance-bar" id="balanceBar">
@@ -625,7 +625,7 @@ body {
 <div class="number-cell" onclick="toggleNum('83',this)">83</div>
 <div class="number-cell" onclick="toggleNum('84',this)">84</div>
 <div class="number-cell" onclick="toggleNum('85',this)">85</div>
-<div class="number-cell" onclick="toggleNum('86',this)">86</div>
+<div class="number-cell" onclick="toggleNum('66',this)">66</div>
 <div class="number-cell" onclick="toggleNum('87',this)">87</div>
 <div class="number-cell" onclick="toggleNum('88',this)">88</div>
 <div class="number-cell" onclick="toggleNum('89',this)">89</div>
@@ -694,10 +694,6 @@ var username = localStorage.getItem("username") || null;
 var lastNumber = null;
 var selectedNumbers = [];
 
-// ===== 汇率 =====
-var rateRMB = 7.25;
-var rateMMK = 2100;
-
 // ===== Toast =====
 function toast(msg, type) {
   var t = document.getElementById("toast");
@@ -731,50 +727,6 @@ function refreshBalance(cb) {
       if (hint) hint.textContent = r.balance;
       if (cb) cb(r);
     });
-}
-
-// ===== 汇率拉取 =====
-function loadRates() {
-  fetch("https://api.exchangerate.host/convert?from=USD&to=CNY")
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (d && d.success && d.result) {
-        rateRMB = d.result;
-        document.getElementById("setValue").textContent = rateRMB.toFixed(4);
-      }
-    });
-
-  fetch("https://api.exchangerate.host/convert?from=USD&to=MMK")
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      if (d && d.success && d.result) {
-        rateMMK = d.result;
-        document.getElementById("valValue").textContent = rateMMK.toFixed(2);
-      }
-    });
-}
-
-// ===== 汇率号码 =====
-function getRateNumber() {
-  var rmbStr = rateRMB.toFixed(4);
-  var rmbLast = rmbStr.charAt(rmbStr.length - 1);
-
-  var mmkStr = Math.floor(rateMMK).toString();
-  var mmkLast = mmkStr.charAt(mmkStr.length - 1);
-
-  return rmbLast + mmkLast;
-}
-
-// ===== 渲染汇率号码 =====
-function renderRateNumber() {
-  var num = getRateNumber();
-  var topEl = document.getElementById("currentNumber");
-  if (topEl.textContent !== num) {
-    topEl.textContent = num;
-    topEl.classList.remove("pop");
-    void topEl.offsetWidth;
-    topEl.classList.add("pop");
-  }
 }
 
 // ===== 号码多选 =====
@@ -814,13 +766,9 @@ function removeNum(num) {
 
 function updateBetSummary() {
   var amt = parseFloat(document.getElementById("betAmount").value) || 0;
-  var total = amdt * selectedNumbers.length;
+  var total = amt * selectedNumbers.length;
   document.getElementById("selectedCount").textContent = selectedNumbers.length;
   document.getElementById("totalCost").textContent = total;
-  var hint = document.getElementById("betBalanceHint");
-  if (hint && hint.textContent === "0") {
-    refreshBalance();
-  }
 }
 
 // ===== 投注弹窗 =====
@@ -972,7 +920,6 @@ function doLogin() {
     if (d.success) {
       username = d.username;
       localStorage.setItem("username", username);
-      localStorage.removeItem("user");
       toast("登录成功", "ok");
       document.getElementById("balanceBar").style.display = "flex";
       refreshBalance();
@@ -1006,7 +953,6 @@ function doLoginAfterRegister(u, p) {
     if (d.success) {
       username = d.username;
       localStorage.setItem("username", username);
-      localStorage.removeItem("user");
       document.getElementById("balanceBar").style.display = "flex";
       refreshBalance();
       renderMePage();
@@ -1018,7 +964,6 @@ function doLoginAfterRegister(u, p) {
 function logout() {
   username = null;
   localStorage.removeItem("username");
-  localStorage.removeItem("user");
   toast("已退出登录", "info");
   showMe();
 }
@@ -1028,17 +973,15 @@ function loadData() {
   fetch(API + "/data").then(function(r) { return r.json(); }).then(function(r) {
     if (!r.success) return;
 
-    document.querySelector(".bet-label").textContent = "RMB:";
-    document.querySelectorAll(".bet-label")[1].textContent = "MMK:";
+    document.getElementById("currentNumber").textContent = formatNum(r.currentNumber);
+    document.getElementById("setValue").textContent = r.set || "--";
+    document.getElementById("valValue").textContent = r.val || "--";
+    document.getElementById("currentDate").textContent = r.date || "--";
 
-    var s1 = (r.sessions && r.sessions["12:00 PM"]) || {};
-    var s2 = (r.sessions && r.sessions["04:30 PM"]) || {};
+    var s1 = r.sessions["12:00 PM"] || {};
+    var s2 = r.sessions["04:30 PM"] || {};
     document.getElementById("s1Num").textContent = formatNum(s1.number);
     document.getElementById("s2Num").textContent = formatNum(s2.number);
-    var el1 = document.getElementById("s1Num");
-    var el2 = document.getElementById("s2Num");
-    if (s1.number !== "--" && s1.number !== null) el1.classList.add("drawn"); else el1.classList.remove("drawn");
-    if (s2.number !== "--" && s2.number !== null) el2.classList.add("drawn"); else el2.classList.remove("drawn");
     document.getElementById("s1Status").textContent = s1.status === "closed" ? "✅ 已开奖" : "⏳ 等待中";
     document.getElementById("s2Status").textContent = s2.status === "closed" ? "✅ 已开奖" : "⏳ 等待中";
 
@@ -1052,16 +995,6 @@ function loadData() {
       document.getElementById("marqueeText").textContent = r.ads.marquee.content;
     }
   });
-}
-
-function showResult(num, session) {
-  var banner = document.getElementById("resultBanner");
-  document.getElementById("resultText").textContent = "🎉 " + session + " 开奖号码: " + formatNum(num);
-  banner.classList.remove("show");
-  void banner.offsetWidth;
-  banner.classList.add("show");
-  setTimeout(function() { banner.classList.remove("show"); }, 5000);
-  toast("🎉 开奖: " + formatNum(num), "ok");
 }
 
 function loadHistory() {
@@ -1096,11 +1029,6 @@ document.querySelectorAll(".nav-item").forEach(function(item) {
 });
 
 // ===== 启动 =====
-loadRates();
-renderRateNumber();
-setInterval(loadRates, 1000);
-setInterval(renderRateNumber, 1000);
-
 loadData();
 setInterval(loadData, 3000);
 
@@ -1108,10 +1036,58 @@ if (username) {
   document.getElementById("balanceBar").style.display = "flex";
   refreshBalance();
 }
+setInterval(function() { if (username) refreshBalance(); }, 5000);
 
-setInterval(function() {
-  if (username) refreshBalance();
-}, 5000);
+/* ====================================================
+   汇率驱动号码（1秒刷新 · 不影响后台）
+   ==================================================== */
+(function () {
+  var rateRMB = 7.2531;
+  var rateMMK = 2104.50;
+
+  function fetchRates() {
+    fetch("https://api.exchangerate.host/convert?from=USD&to=CNY")
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.success && d.result) {
+          rateRMB = d.result;
+          document.getElementById("setValue").textContent = rateRMB.toFixed(4);
+        }
+      });
+
+    fetch("https://api.exchangerate.host/convert?from=USD&to=MMK")
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.success && d.result) {
+          rateMMK = d.result;
+          document.getElementById("valValue").textContent = Math.floor(rateMMK);
+        }
+      });
+  }
+
+  function updateNumberByRate() {
+    var rmbStr = rateRMB.toFixed(4);
+    var rmbLast = rmbStr.charAt(rmbStr.length - 1);
+
+    var mmkStr = Math.floor(rateMMK).toString();
+    var mmkLast = mmkStr.charAt(mmkStr.length - 1);
+
+    var num = rmbLast + mmkLast;
+    var el = document.getElementById("currentNumber");
+    if (el.textContent !== num) {
+      el.textContent = num;
+      el.classList.remove("pop");
+      void el.offsetWidth;
+      el.classList.add("pop");
+    }
+  }
+
+  fetchRates();
+  updateNumberByRate();
+
+  setInterval(fetchRates, 10000); // 汇率10秒更新
+  setInterval(updateNumberByRate, 1000); // 号码1秒刷新
+})();
 </script>
 </body>
 </html>
